@@ -1,2 +1,2 @@
 # discord-menu
-A library for creating tabbed discord menus
+Create tabbed menus in Discord messages
