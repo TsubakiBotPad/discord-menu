@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="discord-menu",
-    version="0.0.1",
+    version="0.0.2",
     author="The Tsubotki Team",
     author_email="69992611+TsubakiBotPad@users.noreply.github.com",
     license="Apache-2.0 License",
@@ -14,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/TsubakiBotPad/discord-menu",
     packages=setuptools.find_packages(),
-    install_requires=["discord.py"],
+    install_requires=[""],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
