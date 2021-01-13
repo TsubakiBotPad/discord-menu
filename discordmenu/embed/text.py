@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from discord import Emoji
 
@@ -12,23 +12,6 @@ class Text(Box):
 
     def to_markdown(self) -> str:
         return self.value
-
-
-class BoldText(Box):
-    def __init__(self, value: str):
-        super().__init__(self)
-        self._value = Text(value)
-
-    def to_markdown(self) -> str:
-        return "**{}**".format(self._value.to_markdown())
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = Text(value)
 
 
 class LabeledText(Box):
@@ -73,6 +56,27 @@ class LinkedText(Box):
     @name.setter
     def name(self, value):
         self._name = Text(value)
+
+
+class BoldText(Box):
+    def __init__(self, value: Union[str, Text, LinkedText]):
+        super().__init__(self)
+        if isinstance(value, Text):
+            self._value = Text(value.to_markdown())
+        elif isinstance(value, LinkedText):
+            self._value = Text(value.to_markdown())
+        self._value = value
+
+    def to_markdown(self) -> str:
+        return "**{}**".format(self._value.to_markdown())
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = Text(value)
 
 
 class HighlightableLinks(Box):
