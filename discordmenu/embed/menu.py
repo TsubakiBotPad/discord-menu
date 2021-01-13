@@ -9,6 +9,12 @@ from discordmenu.embed.components import EmbedMain, EmbedAuthor, EmbedFooter, Em
 from discordmenu.intra_message_state import IntraMessageState
 from discordmenu.reaction_filter import ReactionFilter
 
+HIDDEN_CHAR = "\u200b"
+
+
+def _get_field_name(field, first_chunk):
+    return field.name.value if first_chunk else field.continuation_title or HIDDEN_CHAR
+
 
 class EmbedView:
     def __init__(self,
@@ -33,10 +39,37 @@ class EmbedView:
         embed.set_author(**self.embed_author) if self.embed_author else None
         embed.set_footer(**self.embed_footer) if self.embed_footer else None
 
-        for field in self.embed_fields:
+        for field in self._chunk_embed_fields(1024):
             embed.add_field(**field)
 
         return embed
+
+    def _chunk_embed_fields(self, chunk_size):
+        chunks = []
+        for field in self.embed_fields:
+            remaining = field.value.to_markdown()
+            first_chunk = True
+            while len(remaining) > 0:
+                field_name = _get_field_name(field, first_chunk)
+                if len(remaining) <= chunk_size:
+                    chunks.append(EmbedField(field_name, remaining, field.inline))
+                    break
+
+                left = remaining[:chunk_size]
+                right = remaining[chunk_size:]
+
+                delimiter_index = left.rfind(field.chunk_delimiter)
+                if delimiter_index == -1:
+                    raise Exception("Could not chunk by delimiter")
+
+                left_body = left[:delimiter_index]
+
+                chunks.append(EmbedField(field_name, left_body, field.inline))
+                if first_chunk:
+                    first_chunk = False
+
+                remaining = left[delimiter_index + 1:] + right
+        return chunks
 
     @staticmethod
     def from_message(existing_embed: Embed) -> "EmbedView":

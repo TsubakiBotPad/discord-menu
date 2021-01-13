@@ -11,7 +11,10 @@ class EmbedField(CustomMapping):
     def fields(self) -> List[str]:
         return ["name", "value", "inline"]
 
-    def __init__(self, title: str, body: Union[Box, str], inline: bool = False):
+    def __init__(self, title: str, body: Union[Box, str], inline: bool = False, chunk_delimiter='\n',
+                 continuation_title=''):
+        self.continuation_title = continuation_title
+        self.chunk_delimiter = chunk_delimiter
         self._name = Text(title)
         self._value = body
         self.inline = inline
