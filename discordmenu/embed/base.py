@@ -5,7 +5,7 @@ from typing import List
 
 class Box:
     def __init__(self, *args, delimiter="\n"):
-        self._inner_object = args
+        self._inner_object = [a for a in args if a]
         self.delimiter = delimiter
 
     def _get_markdown(self, arg):
