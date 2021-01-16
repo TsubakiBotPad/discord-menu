@@ -65,7 +65,7 @@ class BoldText(Box):
             self._value = Text(value.to_markdown())
         elif isinstance(value, LinkedText):
             self._value = Text(value.to_markdown())
-        self._value = value
+        self._value = Text(value)
 
     def to_markdown(self) -> str:
         return "**{}**".format(self._value.to_markdown())
