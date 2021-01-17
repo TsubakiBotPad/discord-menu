@@ -17,10 +17,13 @@ class Text(Box):
 
 
 class LabeledText(Box):
-    def __init__(self, name: str, value: str):
+    def __init__(self, name: str, value: Union[Box, str]):
         super().__init__(self)
         self._name = BoldText(name)
-        self._value = Text(value)
+        if isinstance(value, str):
+            self._value = Text(value)
+        else:
+            self._value = value
 
     def to_markdown(self) -> str:
         return "{} {}".format(self._name.to_markdown(), self._value.to_markdown())
