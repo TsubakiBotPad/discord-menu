@@ -6,12 +6,12 @@ from discordmenu.embed.base import Box
 
 
 class Text(Box):
-    def __init__(self, value: Union[str, "Text"]):
+    def __init__(self, value: Union[str, Box]):
         super().__init__(self)
         self.value = value
 
     def to_markdown(self) -> str:
-        if isinstance(self.value, Text):
+        if isinstance(self.value, Box):
             return self.value.to_markdown()
         return self.value
 
