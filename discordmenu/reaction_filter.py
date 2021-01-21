@@ -1,5 +1,5 @@
 import abc
-from collections import Iterable
+from collections.abc import Iterable
 from typing import Optional
 
 from discord import Reaction, Message, Member, RawReactionActionEvent
