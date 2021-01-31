@@ -2,8 +2,7 @@ import asyncio
 from typing import Dict, List, Optional
 
 from discord import Embed, Emoji, Forbidden, Message
-
-from discordmenu.embed.menu import EmbedControl
+from discordmenu.embed.control import EmbedControl
 from discordmenu.emoji_cache import emoji_cache
 
 
@@ -22,10 +21,12 @@ async def update_message(message: Message, updated_messaged_contents, guild_mess
             await asyncio.gather(*remove)
 
 
-async def remove_reaction(message: Message, emoji, member, guild_message: bool):
-    if not guild_message:
+async def remove_reaction(message: Message, emoji, user_id):
+    if not message.guild:
         # bots don't have permission to delete reactions in DM. So check if theres a guild associated before attempting.
         return
+
+    member = message.guild.get_member(user_id)
 
     try:
         await message.remove_reaction(emoji, member)
@@ -33,7 +34,7 @@ async def remove_reaction(message: Message, emoji, member, guild_message: bool):
         pass
 
 
-async def send_embed_control(ctx, embed_control: EmbedControl):
+async def send_embed_control(ctx, embed_control: "EmbedControl"):
     new_embed = embed_control.embed_views[0].to_embed()
     message = await ctx.send(embed=new_embed)
 
@@ -42,7 +43,7 @@ async def send_embed_control(ctx, embed_control: EmbedControl):
     await asyncio.gather(*add)
 
 
-async def update_embed_control(message: Message, next_embed_control: Optional[EmbedControl], emoji_diff: Dict):
+async def update_embed_control(message: Message, next_embed_control: Optional["EmbedControl"], emoji_diff: Dict):
     guild_message = bool(message.guild)
 
     if not next_embed_control:
@@ -58,3 +59,13 @@ async def update_embed_control(message: Message, next_embed_control: Optional[Em
         if guild_message:
             remove = [message.clear_reaction(e) for e in emoji_diff.get('remove', [])]
             await asyncio.gather(*remove)
+
+
+def diff_emojis(message: Message, next_embed_control: Optional["EmbedControl"]):
+    current_emojis = [e.emoji for e in message.reactions]
+    next_emojis = next_embed_control.emoji_buttons
+
+    return {
+        'add': [e for e in next_emojis if e not in current_emojis],
+        'remove': [e for e in current_emojis if e not in next_emojis],
+    }
