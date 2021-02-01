@@ -25,7 +25,7 @@ class EmbedView:
         self.embed_body_image = embed_body_image
         self.embed_thumbnail = embed_thumbnail
         self.embed_main = embed_main
-        self.embed_fields = embed_fields or []
+        self.embed_fields = [f for f in embed_fields if f] if embed_fields else []
         self.embed_footer = embed_footer
 
     def to_embed(self) -> Embed:
