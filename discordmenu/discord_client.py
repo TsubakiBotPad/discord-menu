@@ -70,6 +70,6 @@ def diff_emojis(message: Message, next_embed_control: Optional["EmbedControl"]):
 
 def diff_emojis_raw(current_emojis: List[Reaction], next_emojis: List[Reaction]):
     return {
-        'add': list(set(e for e in next_emojis if e not in current_emojis)),
-        'remove': list(set(e for e in current_emojis if e not in next_emojis)),
+        'add': list(set(e for e in next_emojis if e and e not in current_emojis)),
+        'remove': list(set(e for e in current_emojis if e and e not in next_emojis)),
     }

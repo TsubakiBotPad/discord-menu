@@ -26,7 +26,10 @@ class EmbedMenu:
 
     async def create(self, ctx, state: ViewState):
         embed_control: EmbedControl = self.initial_pane(state)
-        embed_control.emoji_buttons.append(self.emoji_config.no)
+        e_buttons = embed_control.emoji_buttons
+
+        # Only add the close button if it doesn't exist, in case user has overridden it.
+        e_buttons.append(self.emoji_config.no) if self.emoji_config.no not in e_buttons else None
         await send_embed_control(ctx, embed_control)
 
     async def transition(self, message, ims, emoji_clicked, **data):
