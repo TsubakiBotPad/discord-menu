@@ -1,8 +1,11 @@
 from typing import Callable, List, Optional, Coroutine, Dict
 
 from discord import Message, RawReactionActionEvent
-from discordmenu.discord_client import remove_reaction, diff_emojis, update_embed_control, send_embed_control
+
+from discordmenu.discord_client import remove_reaction, update_embed_control, send_embed_control, \
+    diff_emojis_raw
 from discordmenu.embed.control import EmbedControl
+from discordmenu.embed.emoji import DEFAULT_EMBED_MENU_EMOJI_CONFIG, EmbedMenuEmojiConfig
 from discordmenu.embed.view_state import ViewState
 from discordmenu.reaction_filter import ReactionFilter
 
@@ -14,21 +17,34 @@ class EmbedMenu:
     def __init__(self,
                  reaction_filters: List[ReactionFilter],
                  transitions: Dict[str, NextEmbedControlFunc],
-                 initial_pane: Callable):
+                 initial_pane: Callable,
+                 emoji_config: EmbedMenuEmojiConfig = DEFAULT_EMBED_MENU_EMOJI_CONFIG):
+        self.emoji_config = emoji_config
         self.transitions = transitions
         self.reaction_filters = reaction_filters
         self.initial_pane = initial_pane
 
     async def create(self, ctx, state: ViewState):
-        await send_embed_control(ctx, self.initial_pane(state))
+        embed_control: EmbedControl = self.initial_pane(state)
+        e_buttons = embed_control.emoji_buttons
+
+        # Only add the close button if it doesn't exist, in case user has overridden it.
+        e_buttons.append(self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
+        await send_embed_control(ctx, embed_control)
 
     async def transition(self, message, ims, emoji_clicked, **data):
         transition_func = self.transitions.get(emoji_clicked)
         if not transition_func:
+            if emoji_clicked == self.emoji_config.delete_message:
+                await message.delete()
             return
 
         new_control = await transition_func(message, ims, **data)
-        emoji_diff = diff_emojis(message, new_control)
+
+        current_emojis = [e.emoji for e in message.reactions]
+        next_emojis = new_control.emoji_buttons + [self.emoji_config.delete_message]
+
+        emoji_diff = diff_emojis_raw(current_emojis, next_emojis)
         await update_embed_control(message, new_control, emoji_diff)
 
         if message.guild:
