@@ -29,20 +29,20 @@ class EmbedMenu:
         e_buttons = embed_control.emoji_buttons
 
         # Only add the close button if it doesn't exist, in case user has overridden it.
-        e_buttons.append(self.emoji_config.no) if self.emoji_config.no not in e_buttons else None
+        e_buttons.append(self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
         await send_embed_control(ctx, embed_control)
 
     async def transition(self, message, ims, emoji_clicked, **data):
         transition_func = self.transitions.get(emoji_clicked)
         if not transition_func:
-            if emoji_clicked == self.emoji_config.no:
+            if emoji_clicked == self.emoji_config.delete_message:
                 await message.delete()
             return
 
         new_control = await transition_func(message, ims, **data)
 
         current_emojis = [e.emoji for e in message.reactions]
-        next_emojis = new_control.emoji_buttons + [self.emoji_config.no]
+        next_emojis = new_control.emoji_buttons + [self.emoji_config.delete_message]
 
         emoji_diff = diff_emojis_raw(current_emojis, next_emojis)
         await update_embed_control(message, new_control, emoji_diff)

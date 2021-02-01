@@ -1,12 +1,9 @@
 class EmbedMenuEmojiConfig:
-    def __init__(self, yes="✅", no="❌", next="➡", prev="⬅"):
-        self.yes = yes
-        self.no = no
-        self.next = next
-        self.prev = prev
+    def __init__(self, delete_message="❌"):
+        self.delete_message = delete_message
 
     def to_list(self):
-        return [self.yes, self.no, self.next, self.prev]
+        return [self.delete_message]
 
 
 DEFAULT_EMBED_MENU_EMOJI_CONFIG = EmbedMenuEmojiConfig()
