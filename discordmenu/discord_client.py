@@ -1,7 +1,8 @@
 import asyncio
 from typing import Dict, List, Optional
 
-from discord import Embed, Emoji, Forbidden, Message
+from discord import Embed, Emoji, Forbidden, Message, Reaction
+
 from discordmenu.embed.control import EmbedControl
 from discordmenu.emoji_cache import emoji_cache
 
@@ -64,8 +65,11 @@ async def update_embed_control(message: Message, next_embed_control: Optional["E
 def diff_emojis(message: Message, next_embed_control: Optional["EmbedControl"]):
     current_emojis = [e.emoji for e in message.reactions]
     next_emojis = next_embed_control.emoji_buttons
+    return diff_emojis_raw(current_emojis, next_emojis)
 
+
+def diff_emojis_raw(current_emojis: List[Reaction], next_emojis: List[Reaction]):
     return {
-        'add': [e for e in next_emojis if e not in current_emojis],
-        'remove': [e for e in current_emojis if e not in next_emojis],
+        'add': list(set(e for e in next_emojis if e not in current_emojis)),
+        'remove': list(set(e for e in current_emojis if e not in next_emojis)),
     }
