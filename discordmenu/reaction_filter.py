@@ -50,6 +50,22 @@ class ValidEmojiReactionFilter(ReactionFilter):
         return valid_emoji_reaction
 
 
+class BotAuthoredMessageReactionFilter(ReactionFilter):
+    """
+    This prevents the bot from reacting to messages it didn't post.
+    """
+
+    def __init__(self, bot_id: int, filters: Optional[ReactionFilter] = None):
+        super().__init__(filters)
+        self.bot_id = bot_id
+
+    async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member):
+        return message.author.id == self.bot_id
+
+    async def _allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent):
+        return message.author.id == self.bot_id
+
+
 class NotPosterEmojiReactionFilter(ReactionFilter):
     """
     This prevents the bot from reacting to its own emojis in DM.
@@ -86,7 +102,6 @@ class FriendReactionFilter(ReactionFilter):
 
     async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member):
         # return await friend_ids(self.original_author_id, member.id)
-        print("firend", self.friend_ids, member.id)
         return member.id in self.friend_ids
 
     async def _allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent):
