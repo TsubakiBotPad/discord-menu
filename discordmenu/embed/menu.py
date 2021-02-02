@@ -29,7 +29,8 @@ class EmbedMenu:
         e_buttons = embed_control.emoji_buttons
 
         # Only add the close button if it doesn't exist, in case user has overridden it.
-        e_buttons.append(self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
+        e_buttons.append(
+            self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
         await send_embed_control(ctx, embed_control)
 
     async def transition(self, message, ims, emoji_clicked, **data):
@@ -50,9 +51,16 @@ class EmbedMenu:
         if message.guild:
             await remove_reaction(message, emoji_clicked, ims['original_author_id'])
 
-    async def should_respond(self, message, event: RawReactionActionEvent):
+    async def should_respond_raw(self, message, event: RawReactionActionEvent):
         for reaction_filter in self.reaction_filters:
             allow = await reaction_filter.allow_reaction_raw(message, event)
+            if not allow:
+                return False
+        return True
+
+    async def should_respond(self, message, reaction, member):
+        for reaction_filter in self.reaction_filters:
+            allow = await reaction_filter.allow_reaction(message, reaction, member)
             if not allow:
                 return False
         return True

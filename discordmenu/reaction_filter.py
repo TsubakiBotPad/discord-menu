@@ -40,12 +40,15 @@ class ValidEmojiReactionFilter(ReactionFilter):
         emoji_set.update(valid_emoji_names)
         self.valid_emoji_names = list(emoji_set)
 
+    def _emoji_name_from_emoji(self, emoji_obj):
+        return emoji_obj if isinstance(emoji_obj, str) else emoji_obj.name
+
     async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member):
-        valid_emoji_reaction = str(reaction.emoji.name) in self.valid_emoji_names
+        valid_emoji_reaction = self._emoji_name_from_emoji(reaction.emoji) in self.valid_emoji_names
         return valid_emoji_reaction
 
     async def _allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent):
-        valid_emoji_reaction = str(reaction.emoji.name) in self.valid_emoji_names
+        valid_emoji_reaction = self._emoji_name_from_emoji(reaction.emoji) in self.valid_emoji_names
         return valid_emoji_reaction
 
 
