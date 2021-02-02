@@ -1,9 +1,10 @@
-import abc
 from collections.abc import Iterable
-from typing import Optional
+from typing import Optional, List
 
 from discord import Reaction, Message, Member, RawReactionActionEvent
+
 from discordmenu.embed.emoji import DEFAULT_EMBED_MENU_EMOJI_CONFIG, EmbedMenuEmojiConfig
+from discordmenu.emoji.emoji import discord_emoji_to_emoji_name
 
 
 class ReactionFilter:
@@ -12,17 +13,17 @@ class ReactionFilter:
 
     async def allow_reaction(self, message: Message, reaction: Reaction, member: Member):
         parent = await self._allow_reaction(message, reaction, member)
-        if not parent:
-            return False
+        if parent:
+            return True
 
-        return await self.inner_filter.allow_reaction(message, reaction, member) if self.inner_filter else True
+        return await self.inner_filter.allow_reaction(message, reaction, member) if self.inner_filter else False
 
     async def allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent):
         parent = await self._allow_reaction_raw(message, reaction)
-        if not parent:
-            return False
+        if parent:
+            return True
 
-        return await self.inner_filter.allow_reaction_raw(message, reaction) if self.inner_filter else True
+        return await self.inner_filter.allow_reaction_raw(message, reaction) if self.inner_filter else False
 
     async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member):
         return True
@@ -40,15 +41,12 @@ class ValidEmojiReactionFilter(ReactionFilter):
         emoji_set.update(valid_emoji_names)
         self.valid_emoji_names = list(emoji_set)
 
-    def _emoji_name_from_emoji(self, emoji_obj):
-        return emoji_obj if isinstance(emoji_obj, str) else emoji_obj.name
-
     async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member):
-        valid_emoji_reaction = self._emoji_name_from_emoji(reaction.emoji) in self.valid_emoji_names
+        valid_emoji_reaction = discord_emoji_to_emoji_name(reaction.emoji) in self.valid_emoji_names
         return valid_emoji_reaction
 
     async def _allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent):
-        valid_emoji_reaction = self._emoji_name_from_emoji(reaction.emoji) in self.valid_emoji_names
+        valid_emoji_reaction = discord_emoji_to_emoji_name(reaction.emoji) in self.valid_emoji_names
         return valid_emoji_reaction
 
 
@@ -71,8 +69,26 @@ class MessageOwnerReactionFilter(ReactionFilter):
         super().__init__(filters)
         self.original_author_id = original_author_id
 
-    @abc.abstractmethod
+    async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member):
+        return member.id == self.original_author_id
+
     async def _allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent):
         if reaction.guild_id:
             return reaction.member.id == self.original_author_id
         return True
+
+
+class FriendReactionFilter(ReactionFilter):
+    def __init__(self, original_author_id: int, friends_ids: List[str], filters: Optional[ReactionFilter] = None):
+        super().__init__(filters)
+        self.original_author_id = original_author_id
+        self.friend_ids = friends_ids
+
+    async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member):
+        # return await friend_ids(self.original_author_id, member.id)
+        print("firend", self.friend_ids, member.id)
+        return member.id in self.friend_ids
+
+    async def _allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent):
+        # return self.friend_ids(self.original_author_id, reaction.member.id)
+        return reaction.member.id in self.friend_ids

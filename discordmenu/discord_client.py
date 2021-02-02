@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from discord import Embed, Emoji, Forbidden, Message, Reaction
 
 from discordmenu.embed.control import EmbedControl
-from discordmenu.emoji_cache import emoji_cache
+from discordmenu.emoji.emoji_cache import emoji_cache
 
 
 async def update_message(message: Message, updated_messaged_contents, guild_message: bool,

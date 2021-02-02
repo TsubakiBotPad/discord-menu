@@ -22,5 +22,11 @@ class EmojiCache:
         res = [e for e in self.custom_emojis if e.name == name]
         return res[0] if len(res) > 0 else name
 
+    def get_emoji(self, name):
+        for e in self.custom_emojis:
+            if e.name == name:
+                return str(e)
+        return ":{}:".format(name)
+
 
 emoji_cache = EmojiCache([])
