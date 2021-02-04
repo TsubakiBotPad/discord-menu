@@ -35,7 +35,7 @@ class EmbedMenu:
             self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
         await send_embed_control(ctx, embed_control)
 
-    async def transition(self, message, ims, emoji_clicked, **data):
+    async def transition(self, message, ims, emoji_clicked, member, **data):
         transition_func = self.transitions.get(emoji_clicked)
         if not transition_func:
             if emoji_clicked == discord_emoji_to_emoji_name(self.emoji_config.delete_message):
@@ -51,7 +51,7 @@ class EmbedMenu:
         await update_embed_control(message, new_control, emoji_diff)
 
         if message.guild:
-            await remove_reaction(message, emoji_clicked, ims['original_author_id'])
+            await remove_reaction(message, emoji_clicked, member.id)
 
     async def should_respond_raw(self, message, event: RawReactionActionEvent):
         for reaction_filter in self.reaction_filters:
