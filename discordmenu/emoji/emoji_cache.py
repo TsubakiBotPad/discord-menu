@@ -4,6 +4,10 @@ from discord import Emoji as Emoji
 from discord.ext.commands import Bot
 
 
+def is_ascii(s):
+    return all(ord(c) < 128 for c in s)
+
+
 class EmojiCache:
     def __init__(self, guild_ids: List[int]):
         self.guild_ids = guild_ids
@@ -26,6 +30,11 @@ class EmojiCache:
         for e in self.custom_emojis:
             if e.name == name:
                 return str(e)
+
+        # special case when a unicode character is specified
+        if len(name) == 1 and not is_ascii(name):
+            return name
+
         return ":{}:".format(name)
 
 
