@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable, List, Optional, Coroutine, Dict
 
 from discord import Message, RawReactionActionEvent
@@ -10,6 +11,8 @@ from discordmenu.embed.view_state import ViewState
 from discordmenu.emoji.emoji import discord_emoji_to_emoji_name
 from discordmenu.emoji.emoji_cache import emoji_cache
 from discordmenu.reaction_filter import ReactionFilter
+
+from discordmenu.errors import UnsupportedPaneType
 
 _IntraMessageState = Dict
 NextEmbedControlFunc = Callable[[Optional[Message], Dict, _IntraMessageState], Coroutine[None, None, EmbedControl]]
@@ -42,16 +45,25 @@ class EmbedMenu:
                 await message.delete()
             return
 
-        new_control = await transition_func(message, ims, **data)
+        try:
+            new_control = await transition_func(message, ims, **data)
 
-        current_emojis = [e.emoji for e in message.reactions]
-        next_emojis = new_control.emoji_buttons + [emoji_cache.get_emoji(self.emoji_config.delete_message)]
+            current_emojis = [e.emoji for e in message.reactions]
 
-        emoji_diff = diff_emojis_raw(current_emojis, next_emojis)
-        await update_embed_control(message, new_control, emoji_diff)
+            next_emojis = new_control.emoji_buttons + [emoji_cache.get_emoji(self.emoji_config.delete_message)]
+
+            emoji_diff = diff_emojis_raw(current_emojis, next_emojis)
+            await update_embed_control(message, new_control, emoji_diff)
+        except UnsupportedPaneType:
+            await message.add_reaction(self.emoji_config.unsupported_action)
+            asyncio.create_task(self.remove_unsupported_action_response(message))
 
         if message.guild:
             await remove_reaction(message, emoji_clicked, member.id)
+
+    async def remove_unsupported_action_response(self, message):
+        await asyncio.sleep(3)
+        await message.clear_reaction(self.emoji_config.unsupported_action)
 
     async def should_respond_raw(self, message, event: RawReactionActionEvent):
         for reaction_filter in self.reaction_filters:
