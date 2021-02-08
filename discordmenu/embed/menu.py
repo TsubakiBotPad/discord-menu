@@ -21,7 +21,7 @@ class EmbedMenu:
                  transitions: Dict[str, NextEmbedControlFunc],
                  initial_pane: Callable,
                  emoji_config: EmbedMenuEmojiConfig = DEFAULT_EMBED_MENU_EMOJI_CONFIG,
-                 unsupported_transition_announce_timeout: int = 10
+                 unsupported_transition_announce_timeout: int = 3
                  ):
         self.emoji_config = emoji_config
         self.transitions = transitions
@@ -46,10 +46,8 @@ class EmbedMenu:
             return
 
         new_control = await transition_func(message, ims, **data)
-
         if new_control is not None:
             current_emojis = [e.emoji for e in message.reactions]
-
             next_emojis = new_control.emoji_buttons + [emoji_cache.get_emoji(self.emoji_config.delete_message)]
 
             emoji_diff = diff_emojis_raw(current_emojis, next_emojis)
