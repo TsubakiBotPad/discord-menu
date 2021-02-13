@@ -42,6 +42,7 @@ async def send_embed_control(ctx, embed_control: "EmbedControl"):
     emoji_to_add = [emoji_cache.get_by_name(e) for e in embed_control.emoji_buttons]
     add = [message.add_reaction(e) for e in emoji_to_add]
     await asyncio.gather(*add)
+    return message
 
 
 async def update_embed_control(message: Message, next_embed_control: Optional["EmbedControl"], emoji_diff: Dict):
