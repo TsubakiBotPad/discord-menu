@@ -36,7 +36,7 @@ class EmbedMenu:
         # Only add the close button if it doesn't exist, in case user has overridden it.
         e_buttons.append(
             self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
-        await send_embed_control(ctx, embed_control)
+        return await send_embed_control(ctx, embed_control)
 
     async def transition(self, message, ims, emoji_clicked, member, **data):
         transition_func = self.transitions.get(emoji_clicked)
