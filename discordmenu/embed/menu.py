@@ -21,13 +21,15 @@ class EmbedMenu:
                  transitions: Dict[str, NextEmbedControlFunc],
                  initial_pane: Callable,
                  emoji_config: EmbedMenuEmojiConfig = DEFAULT_EMBED_MENU_EMOJI_CONFIG,
-                 unsupported_transition_announce_timeout: int = 3
+                 unsupported_transition_announce_timeout: int = 3,
+                 delete_func=None
                  ):
         self.emoji_config = emoji_config
         self.transitions = transitions
         self.reaction_filters = reaction_filters
         self.initial_pane = initial_pane
         self.unsupported_transition_announce_timeout = unsupported_transition_announce_timeout
+        self.delete_func = delete_func
 
     async def create(self, ctx, state: ViewState):
         embed_control: EmbedControl = self.initial_pane(state)
@@ -40,9 +42,23 @@ class EmbedMenu:
 
     async def transition(self, message, ims, emoji_clicked, member, **data):
         transition_func = self.transitions.get(emoji_clicked)
-        if not transition_func:
+        if not transition_func or emoji_clicked == discord_emoji_to_emoji_name(
+                        self.emoji_config.delete_message):
+            # Custom deletion has to be handled here instead of falling through to the typical control handling
+            # because otherwise we'll have returned None and end up "raising" an unsupported transition
             if emoji_clicked == discord_emoji_to_emoji_name(self.emoji_config.delete_message):
-                await message.delete()
+                if self.delete_func is None:
+                    await message.delete()
+                else:
+                    await self.delete_func(message, ims, **data)
+                    try:
+                        if message.guild:
+                            await remove_reaction(message, emoji_clicked, member.id)
+                    except discord.errors.NotFound:
+                        # Our custom deletion function may or may not delete the entire message
+                        # (it may simply remeove the embed) - so we'll attempt to remove the reaction,
+                        # but we might fail to do so
+                        pass
             return
 
         new_control = await transition_func(message, ims, **data)
