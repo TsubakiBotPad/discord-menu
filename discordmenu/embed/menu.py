@@ -1,6 +1,7 @@
 import asyncio
 from typing import Callable, List, Optional, Coroutine, Dict
 
+import discord
 from discord import Message, RawReactionActionEvent
 from discordmenu.discord_client import remove_reaction, update_embed_control, send_embed_control, \
     diff_emojis_raw
@@ -31,17 +32,18 @@ class EmbedMenu:
         self.unsupported_transition_announce_timeout = unsupported_transition_announce_timeout
         self.delete_func = delete_func
 
-    async def create(self, ctx, state: ViewState):
+    async def create(self, ctx, state: ViewState, message: Message = None):
         embed_control: EmbedControl = self.initial_pane(state)
         e_buttons = embed_control.emoji_buttons
 
         # Only add the close button if it doesn't exist, in case user has overridden it.
         e_buttons.append(
             self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
-        return await send_embed_control(ctx, embed_control)
+        return await send_embed_control(ctx, embed_control, message=message)
 
     async def transition(self, message, ims, emoji_clicked, member, **data):
         transition_func = self.transitions.get(emoji_clicked)
+        new_control = None
         if not transition_func or emoji_clicked == discord_emoji_to_emoji_name(
                         self.emoji_config.delete_message):
             # Custom deletion has to be handled here instead of falling through to the typical control handling
@@ -50,7 +52,7 @@ class EmbedMenu:
                 if self.delete_func is None:
                     await message.delete()
                 else:
-                    await self.delete_func(message, ims, **data)
+                    new_control = await self.delete_func(message, ims, **data)
                     try:
                         if message.guild:
                             await remove_reaction(message, emoji_clicked, member.id)
@@ -59,9 +61,10 @@ class EmbedMenu:
                         # (it may simply remeove the embed) - so we'll attempt to remove the reaction,
                         # but we might fail to do so
                         pass
-            return
-
-        new_control = await transition_func(message, ims, **data)
+            if new_control is None:
+                return
+        else:
+            new_control = await transition_func(message, ims, **data)
         if new_control is not None:
             current_emojis = [e.emoji for e in message.reactions]
             next_emojis = new_control.emoji_buttons + [emoji_cache.get_emoji(self.emoji_config.delete_message)]

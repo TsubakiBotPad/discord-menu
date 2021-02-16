@@ -35,9 +35,12 @@ async def remove_reaction(message: Message, emoji, user_id):
         pass
 
 
-async def send_embed_control(ctx, embed_control: "EmbedControl"):
+async def send_embed_control(ctx, embed_control: "EmbedControl", message: Message = None):
     new_embed = embed_control.embed_views[0].to_embed()
-    message = await ctx.send(embed=new_embed)
+    if message is None:
+        message = await ctx.send(embed=new_embed)
+    else:
+        await message.edit(embed=new_embed)
 
     emoji_to_add = [emoji_cache.get_by_name(e) for e in embed_control.emoji_buttons]
     add = [message.add_reaction(e) for e in emoji_to_add]
