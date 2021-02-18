@@ -18,7 +18,6 @@ NextEmbedControlFunc = Callable[[Optional[Message], Dict, _IntraMessageState], C
 
 class EmbedMenu:
     def __init__(self,
-                 reaction_filters: List[ReactionFilter],
                  transitions: Dict[str, NextEmbedControlFunc],
                  initial_pane: Callable,
                  emoji_config: EmbedMenuEmojiConfig = DEFAULT_EMBED_MENU_EMOJI_CONFIG,
@@ -27,7 +26,6 @@ class EmbedMenu:
                  ):
         self.emoji_config = emoji_config
         self.transitions = transitions
-        self.reaction_filters = reaction_filters
         self.initial_pane = initial_pane
         self.unsupported_transition_announce_timeout = unsupported_transition_announce_timeout
         self.delete_func = delete_func
@@ -83,15 +81,15 @@ class EmbedMenu:
         await asyncio.sleep(self.unsupported_transition_announce_timeout)
         await message.clear_reaction(self.emoji_config.unsupported_transition)
 
-    async def should_respond_raw(self, message, event: RawReactionActionEvent):
-        for reaction_filter in self.reaction_filters:
+    async def should_respond_raw(self, message, event: RawReactionActionEvent, reaction_filters: List[ReactionFilter]):
+        for reaction_filter in reaction_filters:
             allow = await reaction_filter.allow_reaction_raw(message, event)
             if not allow:
                 return False
         return True
 
-    async def should_respond(self, message, reaction, member):
-        for reaction_filter in self.reaction_filters:
+    async def should_respond(self, message, reaction, reaction_filters: List[ReactionFilter], member):
+        for reaction_filter in reaction_filters:
             allow = await reaction_filter.allow_reaction(message, reaction, member)
             if not allow:
                 return False
