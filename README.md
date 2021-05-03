@@ -24,6 +24,16 @@ If you have some custom emojis that your bot is allowed to use, a bad actor coul
 ### Defined once per bot
 You will need a listener - either `on_reaction_add` or `on_raw_reaction_add`, this is how the bot actually listens to reactions. For an example listener, see the [MenuListener cog](https://github.com/TsubakiBotPad/misc-cogs/tree/master/menulistener) used by Tsubaki Bot. This cog supports multi-level menus; however, the lower level(s) of menus must all be `IdMenu` types currently.
 
+You will also need an `embed_footer_with_state` function to use. If you want to use menus in multiple cogs, you should probably write this function in a library external to your bot. For example, in Tsubaki Bot, we have one [defined in tsutils](https://github.com/TsubakiBotPad/tsutils/blob/master/tsutils/menu/footers.py):
+
+```python
+def embed_footer_with_state(state: ViewState, image_url=TSUBAKI_FLOWER_ICON_URL):
+    url = IntraMessageState.serialize(image_url, state.serialize())
+    return EmbedFooter(
+        'Requester may click the reactions below to switch tabs',
+        icon_url=url)
+```
+
 ### Defined once per cog
 * You will need a `menu_map` file that maps strings to menu classes & panes classes. For example, see [menu_map.py](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/menu/menu_map.py) in the `padinfo` cog in Tsubaki bot.
 * You will also need to register your cog to the listener. How you do this may vary depending on your bot framework, but for example, in [`padinfo/__init__.py`](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/__init__.py) we run:
