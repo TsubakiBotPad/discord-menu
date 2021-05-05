@@ -35,8 +35,8 @@ def embed_footer_with_state(state: ViewState, image_url=TSUBAKI_FLOWER_ICON_URL)
 ```
 
 ### Defined once per cog
-* You will need a `menu_map` file that maps strings to menu classes & panes classes. For example, see [menu_map.py](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/menu/menu_map.py) in the `padinfo` cog in Tsubaki bot.
-* You will also need to register your cog to the listener. How you do this may vary depending on your bot framework, but for example, in [`padinfo/__init__.py`](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/__init__.py) we run:
+#### Registering the menu
+You will also need to register your cog to the listener. How you do this may vary depending on your bot framework, but for example, in [`padinfo/__init__.py`](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/__init__.py) we run:
 
 ```python
     bot.loop.create_task(n.register_menu())
@@ -53,6 +53,8 @@ async def register_menu(self):
         return
     await menulistener.register(self)
 ```
+#### Defining the menu map
+You will need a `menu_map` file that maps strings to menu classes & panes classes. For example, see [menu_map.py](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/menu/menu_map.py) in the `padinfo` cog in Tsubaki bot.
 
 The `menu_map` is also imported and set as a class constant at the top of the cog:
 
@@ -61,6 +63,17 @@ class PadInfo(commands.Cog):
     """Info for PAD Cards"""
 
     menu_map = padinfo_menu_map
+```
+#### Setting default data (optional)
+Optionally, you may want a function called `get_menu_default_data`. For example, in the `padinfo` cog, this method is how we pass `DGCOG` to the menu:
+
+```python
+    async def get_menu_default_data(self, ims):
+        data = {
+            'dgcog': await self.get_dgcog(),
+            'user_config': await BotConfig.get_user(self.config, ims['original_author_id'])
+        }
+        return data
 ```
 
 ### Defined once per menu
