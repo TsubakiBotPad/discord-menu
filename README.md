@@ -65,7 +65,7 @@ class PadInfo(commands.Cog):
     menu_map = padinfo_menu_map
 ```
 #### Setting default data (optional)
-Optionally, you may want a function called `get_menu_default_data`. For example, in the `padinfo` cog, this method is how we pass `DGCOG` to the menu:
+Optionally, you may want a function called `get_menu_default_data`. For example, in the [`padinfo` cog](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/padinfo.py), this method is how we pass `DGCOG` to the menu:
 
 ```python
     async def get_menu_default_data(self, ims):
