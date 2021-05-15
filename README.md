@@ -95,7 +95,7 @@ You will also need a `view` file, containing:
 * A `ViewState` class, which determines how to serialize and deserialize the IMS.
 * A `View` class, which is the definition of the embed 
 
-As an example, we can look at the [`simple_text` view](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/view/simple_text.py) used by Tsubaki Bot. It only has two non-default properties: color and message contents. Note that creation of a base class like we did in the padinfo cog is OPTIONAL. If you are only creating one menu in your cog, there is no need to make a `ViewStateBase` class.
+As an example, we can look at the [`simple_text` view](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/view/simple_text.py) used by Tsubaki Bot. It only has two non-default properties: color and message contents. Note that creation of a base class like we did in the padinfo cog is OPTIONAL. Make one if you are making multiple menus in your cog, and they are related enough that a custom `ViewStateBase` class is helpful. (You can always go back and make one later if you decide you need to, and you didn't make one initially.)
 
 Finally, in the main cog file, you will need to write some command that creates a menu. We can no longer use `simple_text` as our example because this menu is not created directly through a command, so we will use `LeaderSkillSingle` instead, another relatively simple menu. The following command instantiates a `LeaderSkillSingleMenu`:
 
