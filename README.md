@@ -22,8 +22,9 @@ If you have some custom emojis that your bot is allowed to use, a bad actor coul
 
 ## Parts of a menu
 ### Defined once per bot
-You will need a listener - either `on_reaction_add` or `on_raw_reaction_add`, this is how the bot actually listens to reactions. For an example listener, see the [MenuListener cog](https://github.com/TsubakiBotPad/misc-cogs/tree/master/menulistener) used by Tsubaki Bot. This cog supports multi-level menus; however, the lower level(s) of menus must all be `IdMenu` types currently.
-
+#### A listener
+Either `on_reaction_add` or `on_raw_reaction_add`, this is how the bot actually listens to reactions. For an example listener, see the [MenuListener cog](https://github.com/TsubakiBotPad/misc-cogs/tree/master/menulistener) used by Tsubaki Bot. This cog supports multi-level menus; however, the lower level(s) of menus must all be `IdMenu` types currently.
+#### A footer to hold the ims
 You will also need an `embed_footer_with_state` function to use. If you want to use menus in multiple cogs, you should probably write this function in a library external to your bot. For example, in Tsubaki Bot, we have one [defined in tsutils](https://github.com/TsubakiBotPad/tsutils/blob/master/tsutils/menu/footers.py):
 
 ```python
@@ -33,6 +34,10 @@ def embed_footer_with_state(state: ViewState, image_url=TSUBAKI_FLOWER_ICON_URL)
         'Requester may click the reactions below to switch tabs',
         icon_url=url)
 ```
+#### A base class for your panes
+In Tsubaki Bot, we [define this in tsutils](https://github.com/TsubakiBotPad/tsutils/blob/master/tsutils/menu/panes.py). You will be able to overwrite `INITIAL_EMOJI`, `DATA`, and `HIDDEN_EMOJIS` in each individual menu; the other functions shouldn't be overridden anywhere.
+
+TODO: Add a more general version of this class directly to `discordmenu`.
 
 ### Defined once per cog
 #### Registering the menu
@@ -75,7 +80,6 @@ Optionally, you may want a function called `get_menu_default_data`. For example,
         }
         return data
 ```
-
 ### Defined once per menu
 You will need, in a `menu` file containing:
 * A Menu class, consisting of:
