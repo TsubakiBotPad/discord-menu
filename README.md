@@ -1,7 +1,7 @@
 ## What is DiscordMenu?
 DiscordMenu is a loose framework for creating menus out of Discord embeds where the user can click specified emojis and the embed responds according to preset instructions. Its primary advantages over other menu libraries are:
 
-1. **Statelessness** - through use of an *intra-message state*, or "IMS," no data needs to be stored on the bot's server, allowing emojis never to expire (potentially dependent on which type of listener you are.
+1. **Statelessness** - through use of an *intra-message state*, or "IMS," no data needs to be stored on the bot's server, allowing emojis never to expire (potentially dependent on which type of listener you are).
 2. **Flexibility** - arbitrary code can be executed upon emoji clicks, allowing for features like child menus, "menu friends," and more!
 
 ## What is an IMS?
@@ -15,7 +15,7 @@ The IMS is physically stored in a small icon in the footer of your menu next to 
 Once a reaction is clicked and registered by the listener, the listener will first check if there is a valid IMS attached to the message. If not, it immediately returns. If there is one, it then checks for a valid `menu_type`. Only if there is a valid `menu_type` will it proceed to process the message. For more information, see "Control flow" below.
 
 ## Features of DiscordMenu
-In addition to the ability to make menus for you, there are some additional specific features of DisordMenu that you should know about:
+In addition to the ability to make menus for you, there are some additional specific features of DiscordMenu that you should know about:
 
 ### Emoji cache
 If you have some custom emojis that your bot is allowed to use, a bad actor could theoretically upload a different emoji into another server that the bot is also in, with the same name, and trick the bot into printing the wrong emoji instead. To counteract this problem, you can specify a list of "allowed emoji servers," and the DiscordMenu emoji cache helps you do this.
@@ -81,7 +81,7 @@ Optionally, you may want a function called `get_menu_default_data`. For example,
         return data
 ```
 ### Defined once per menu
-You will need, in a `menu` file containing:
+You will need a `menu` file containing:
 * A Menu class, consisting of:
     * A `menu` method
     * One or more `respond_with` methods
@@ -101,7 +101,7 @@ You will also need a `view` file, containing:
 
 As an example, we can look at the [`simple_text` view](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/view/simple_text.py) used by Tsubaki Bot. It only has two non-default properties: color and message contents. Note that creation of a base class like we did in the padinfo cog is OPTIONAL. Make one if you are making multiple menus in your cog, and they are related enough that a custom `ViewStateBase` class is helpful. (You can always go back and make one later if you decide you need to, and you didn't make one initially.)
 
-Finally, in the main cog file, you will need to write some command that creates a menu. We can no longer use `simple_text` as our example because this menu is not created directly through a command, so we will use `LeaderSkillSingle` instead, another relatively simple menu. The following command instantiates a `LeaderSkillSingleMenu`:
+Finally, in the main cog file, you will need to write some command that creates a menu. We can no longer use `SimpleText` as our example because this menu is not created directly through a command, so we will use `LeaderSkillSingle` instead, another relatively simple menu. The following command instantiates a `LeaderSkillSingleMenu`:
 
 ```python
         # code to assign a value to monster
