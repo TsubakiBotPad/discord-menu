@@ -111,3 +111,23 @@ Finally, in the main cog file, you will need to write some command that creates 
         menu = LeaderSkillSingleMenu.menu()
         await menu.create(ctx, state)
 ```
+## Flow of information
+### When a menu is created
+
+Let's look at an example from Tsubaki's `padinfo` cog:
+
+```python
+        alt_monsters = IdViewState.get_alt_monsters_and_evos(dgcog, monster)
+        transform_base, true_evo_type_raw, acquire_raw, base_rarity = \
+            await IdViewState.query(dgcog, monster)
+        full_reaction_list = [emoji_cache.get_by_name(e) for e in IdMenuPanes.emoji_names()]
+        initial_reaction_list = await get_id_menu_initial_reaction_list(ctx, dgcog, monster, full_reaction_list)
+
+        state = IdViewState(original_author_id, IdMenu.MENU_TYPE, raw_query, query, color, monster, alt_monsters,
+                            transform_base, true_evo_type_raw, acquire_raw, base_rarity,
+                            use_evo_scroll=settings.checkEvoID(ctx.author.id), reaction_list=initial_reaction_list)
+        menu = IdMenu.menu()
+        await menu.create(ctx, state)
+```
+
+The first four lines compute values and are included only for context. Then we create an `IdViewState`. This line calls the `__init__` method of the `IdViewState` class and instantiates an `IdViewState` as `state`. We also instantiate an `IdMenu` as `menu`. We then call the `create` method of `menu`, which you will recall is a static method.
