@@ -10,7 +10,7 @@ The IMS is physically stored in a small icon in the footer of your menu next to 
 
 * The ID of the author of the initial command, so that the bot can respond only to reactions belonging to the right person or people
 * A string representation of the menu type, to be fed to your `menu_map` (see "Parts of a menu" below)
-* The current reaction list, so that you don't remove any reactions when updating the menu
+* The current reaction list, so that you don't unintentionally remove any reactions when updating the menu
 
 Once a reaction is clicked and registered by the listener, the listener will first check if there is a valid IMS attached to the message. If not, it immediately returns. If there is one, it then checks for a valid `menu_type`. Only if there is a valid `menu_type` will it proceed to process the message. For more information, see "Control flow" below.
 
