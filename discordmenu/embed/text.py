@@ -66,10 +66,6 @@ class LinkedText(Box):
 class BoldText(Box):
     def __init__(self, value: Union[str, Text, LinkedText]):
         super().__init__(self)
-        if isinstance(value, Text):
-            self._value = Text(value.to_markdown())
-        elif isinstance(value, LinkedText):
-            self._value = Text(value.to_markdown())
         self._value = Text(value)
 
     def to_markdown(self) -> str:
@@ -87,8 +83,6 @@ class BoldText(Box):
 class InlineText(Box):
     def __init__(self, value: Union[str, Text]):
         super().__init__(self)
-        if isinstance(value, Text):
-            self._value = Text(value.to_markdown())
         self._value = Text(value)
 
     def to_markdown(self) -> str:
@@ -106,8 +100,6 @@ class InlineText(Box):
 class BlockText(Box):
     def __init__(self, value: Union[str, Text]):
         super().__init__(self)
-        if isinstance(value, Text):
-            self._value = Text(value.to_markdown())
         self._value = Text(value)
 
     def to_markdown(self) -> str:
