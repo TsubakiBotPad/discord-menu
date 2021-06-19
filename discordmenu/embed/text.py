@@ -103,6 +103,25 @@ class InlineText(Box):
         self._value = Text(value)
 
 
+class BlockText(Box):
+    def __init__(self, value: Union[str, Text]):
+        super().__init__(self)
+        if isinstance(value, Text):
+            self._value = Text(value.to_markdown())
+        self._value = Text(value)
+
+    def to_markdown(self) -> str:
+        return "```\n{}\n```".format(self._value.to_markdown())
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = Text(value)
+
+
 class HighlightableLinks(Box):
     def __init__(self, links: List[LinkedText], highlighted: int, delimiter=", "):
         super().__init__(self)
