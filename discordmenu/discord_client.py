@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from discord import Embed, Emoji, Forbidden, Message, Reaction
 
@@ -30,7 +30,8 @@ async def remove_reaction(message: Message, emoji, user_id):
     member = message.guild.get_member(user_id)
 
     try:
-        await message.remove_reaction(emoji, member)
+        # support custom emojis
+        await message.remove_reaction(emoji_cache.get_emoji(emoji), member)
     except Forbidden:
         pass
 
@@ -72,9 +73,18 @@ def diff_emojis(message: Message, next_embed_control: Optional["EmbedControl"]):
     return diff_emojis_raw(current_emojis, next_emojis)
 
 
-def diff_emojis_raw(current_emojis: List[Reaction], next_emojis: List[Reaction]):
+def diff_emojis_raw(current_emojis: List[Union[str, Emoji]],
+                    next_emojis: List[Union[str, Emoji]]):
     return {
         'add': sorted(set(
-            e for e in next_emojis if e and e not in current_emojis), key=lambda x: next_emojis.index(x)),
-        'remove': list(set(e for e in current_emojis if e and e not in next_emojis)),
+            e for e in next_emojis if e and not emoji_matches(e, current_emojis)), key=lambda x: next_emojis.index(x)),
+        'remove': list(set(e for e in current_emojis if e and not emoji_matches(e, current_emojis))),
     }
+
+
+def emoji_matches(emoji: Union[str, Emoji], emoji_to_match: List[Union[str, Emoji]]) -> bool:
+    # handle case of custom emojis as well as normal unicode emojis
+    if isinstance(emoji, Emoji):
+        emoji = emoji.name
+    emoji_to_match = [e.name if isinstance(e, Emoji) else e for e in emoji_to_match]
+    return emoji in emoji_to_match
