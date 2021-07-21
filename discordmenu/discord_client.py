@@ -82,7 +82,7 @@ def diff_emojis_raw(current_emojis: List[Union[str, Emoji]],
     }
 
 
-def emoji_matches(emoji: Union[str, Emoji], emoji_to_match: List[Union[str, Emoji]]):
+def emoji_matches(emoji: Union[str, Emoji], emoji_to_match: List[Union[str, Emoji]]) -> bool:
     # handle case of custom emojis as well as normal unicode emojis
     if isinstance(emoji, Emoji):
         emoji = emoji.name
