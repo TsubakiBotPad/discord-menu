@@ -3,6 +3,7 @@ from typing import Callable, List, Optional, Coroutine, Dict
 
 import discord
 from discord import Message, RawReactionActionEvent
+
 from discordmenu.discord_client import remove_reaction, update_embed_control, send_embed_control, \
     diff_emojis_raw
 from discordmenu.embed.control import EmbedControl
@@ -34,8 +35,8 @@ class EmbedMenu:
         e_buttons = embed_control.emoji_buttons
 
         # Only add the close button if it doesn't exist, in case user has overridden it.
-        e_buttons.append(
-            self.emoji_config.delete_message) if self.emoji_config.delete_message not in e_buttons else None
+        if self.emoji_config.delete_message not in e_buttons:
+            e_buttons.insert(0, self.emoji_config.delete_message)
         return await send_embed_control(ctx, embed_control, message=message)
 
     async def transition(self, message, ims, emoji_clicked, member, **data):
@@ -64,7 +65,7 @@ class EmbedMenu:
             new_control = await transition_func(message, ims, **data)
         if new_control is not None:
             current_emojis = [e.emoji for e in message.reactions]
-            next_emojis = new_control.emoji_buttons + [self.emoji_config.delete_message]
+            next_emojis = [self.emoji_config.delete_message] + new_control.emoji_buttons
 
             emoji_diff = diff_emojis_raw(current_emojis, next_emojis)
             await update_embed_control(message, new_control, emoji_diff)
