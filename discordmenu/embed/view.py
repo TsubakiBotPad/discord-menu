@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from discord import Embed
 
@@ -8,18 +8,18 @@ from discordmenu.embed.components import EmbedMain, EmbedAuthor, EmbedFooter, Em
 HIDDEN_CHAR = "\u200b"
 
 
-def _get_field_name(field, first_chunk):
+def _get_field_name(field: EmbedField, first_chunk: bool) -> str:
     return field.name.value if first_chunk else field.continuation_title or HIDDEN_CHAR
 
 
 class EmbedView:
     def __init__(self,
                  embed_main: EmbedMain,
-                 embed_author: EmbedAuthor = None,
-                 embed_thumbnail: EmbedThumbnail = None,
-                 embed_body_image: EmbedBodyImage = None,
-                 embed_fields: List[EmbedField] = None,
-                 embed_footer: EmbedFooter = None
+                 embed_author: Optional[EmbedAuthor] = None,
+                 embed_thumbnail: Optional[EmbedThumbnail] = None,
+                 embed_body_image: Optional[EmbedBodyImage] = None,
+                 embed_fields: Optional[List[EmbedField]] = None,
+                 embed_footer: Optional[EmbedFooter] = None
                  ):
         self.embed_author = embed_author
         self.embed_body_image = embed_body_image
@@ -30,17 +30,21 @@ class EmbedView:
 
     def to_embed(self) -> Embed:
         embed = Embed(**self.embed_main)
-        embed.set_thumbnail(**self.embed_thumbnail) if self.embed_thumbnail else None
-        embed.set_image(**self.embed_body_image) if self.embed_body_image else None
-        embed.set_author(**self.embed_author) if self.embed_author else None
-        embed.set_footer(**self.embed_footer) if self.embed_footer else None
+        if self.embed_thumbnail is not None:
+            embed.set_thumbnail(**self.embed_thumbnail)
+        if self.embed_body_image is not None:
+            embed.set_image(**self.embed_body_image)
+        if self.embed_author is not None:
+            embed.set_author(**self.embed_author)
+        if self.embed_footer is not None:
+            embed.set_footer(**self.embed_footer)
 
         for field in self._chunk_embed_fields(1024):
             embed.add_field(**field)
 
         return embed
 
-    def _chunk_embed_fields(self, chunk_size):
+    def _chunk_embed_fields(self, chunk_size: int) -> List[EmbedField]:
         chunks = []
         for field in self.embed_fields:
             remaining = field.value.to_markdown()
