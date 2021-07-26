@@ -81,7 +81,7 @@ class BoldText(Box):
 
 
 class InlineText(Box):
-    def __init__(self, value: Union[str, Text]):
+    def __init__(self, value: Union[str, Box]):
         super().__init__(self)
         self._value = Text(value)
 
@@ -98,7 +98,7 @@ class InlineText(Box):
 
 
 class BlockText(Box):
-    def __init__(self, value: Union[str, Text]):
+    def __init__(self, value: Union[str, Box]):
         super().__init__(self)
         self._value = Text(value)
 
