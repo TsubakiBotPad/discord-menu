@@ -1,5 +1,4 @@
-from collections.abc import Iterable
-from typing import Optional, List, Union
+from typing import Iterable, Optional, List, Union
 
 from discord import Reaction, Message, Member, RawReactionActionEvent, Emoji
 

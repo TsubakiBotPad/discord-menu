@@ -10,7 +10,7 @@ from discordmenu.emoji.emoji_cache import emoji_cache
 
 
 async def update_message(message: Message, updated_messaged_contents, guild_message: bool,
-                         emoji_diff: Optional[Dict[str, List[str, Emoji]]] = None) -> None:
+                         emoji_diff: Optional[Dict[str, List[Union[str, Emoji]]]] = None) -> None:
     if isinstance(updated_messaged_contents, Embed):
         await message.edit(embed=updated_messaged_contents)
     else:
@@ -52,7 +52,7 @@ async def send_embed_control(ctx: Context, embed_control: EmbedControl, message:
 
 
 async def update_embed_control(message: Message, next_embed_control: EmbedControl,
-                               emoji_diff: Dict[str, List[Emoji, str]]) -> None:
+                               emoji_diff: Dict[str, List[Union[Emoji, str]]]) -> None:
     guild_message = bool(message.guild)
 
     if not next_embed_control:
