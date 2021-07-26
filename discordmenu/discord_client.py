@@ -2,12 +2,15 @@ import asyncio
 from typing import Dict, List, Optional, Union, Sequence
 
 from discord import Embed, Emoji, Forbidden, Message
+from discord.ext.commands import Context
+
+from discord import Embed, Emoji, Forbidden, Message
 from discordmenu.embed.control import EmbedControl
 from discordmenu.emoji.emoji_cache import emoji_cache
 
 
 async def update_message(message: Message, updated_messaged_contents, guild_message: bool,
-                         emoji_diff: Dict[str, List[Emoji]] = None):
+                         emoji_diff: Optional[Dict[str, List[str, Emoji]]] = None) -> None:
     if isinstance(updated_messaged_contents, Embed):
         await message.edit(embed=updated_messaged_contents)
     else:
@@ -21,7 +24,7 @@ async def update_message(message: Message, updated_messaged_contents, guild_mess
             await asyncio.gather(*remove)
 
 
-async def remove_reaction(message: Message, emoji, user_id):
+async def remove_reaction(message: Message, emoji: str, user_id: int) -> None:
     if not message.guild:
         # bots don't have permission to delete reactions in DM. So check if theres a guild associated before attempting.
         return
@@ -35,7 +38,7 @@ async def remove_reaction(message: Message, emoji, user_id):
         pass
 
 
-async def send_embed_control(ctx, embed_control: "EmbedControl", message: Message = None):
+async def send_embed_control(ctx: Context, embed_control: EmbedControl, message: Optional[Message] = None) -> Message:
     new_embed = embed_control.embed_views[0].to_embed()
     if message is None:
         message = await ctx.send(embed=new_embed)
@@ -48,7 +51,8 @@ async def send_embed_control(ctx, embed_control: "EmbedControl", message: Messag
     return message
 
 
-async def update_embed_control(message: Message, next_embed_control: Optional["EmbedControl"], emoji_diff: Dict):
+async def update_embed_control(message: Message, next_embed_control: EmbedControl,
+                               emoji_diff: Dict[str, List[Emoji, str]]) -> None:
     guild_message = bool(message.guild)
 
     if not next_embed_control:
@@ -66,14 +70,14 @@ async def update_embed_control(message: Message, next_embed_control: Optional["E
             await asyncio.gather(*remove)
 
 
-def diff_emojis(message: Message, next_embed_control: Optional["EmbedControl"]):
+def diff_emojis(message: Message, next_embed_control: EmbedControl) -> Dict[str, List[Union[str, Emoji]]]:
     current_emojis = [e.emoji for e in message.reactions]
     next_emojis = next_embed_control.emoji_buttons
     return diff_emojis_raw(current_emojis, next_emojis)
 
 
-def diff_emojis_raw(current_emojis: List[Union[str, Emoji]],
-                    next_emojis: List[Union[str, Emoji]]):
+def diff_emojis_raw(current_emojis: List[Union[str, Emoji]], next_emojis: List[Union[str, Emoji]]) \
+        -> Dict[str, List[Union[str, Emoji]]]:
     add = sorted(
         set(e for e in next_emojis if e and not emoji_matches(e, current_emojis)),
         key=lambda x: next_emojis.index(x))

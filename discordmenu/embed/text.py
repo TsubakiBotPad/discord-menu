@@ -29,19 +29,19 @@ class LabeledText(Box):
         return "{} {}".format(self._name.to_markdown(), self._value.to_markdown())
 
     @property
-    def name(self):
+    def name(self) -> "BoldText":
         return self._name
 
     @name.setter
-    def name(self, name):
+    def name(self, name: Union[str, Box]) -> None:
         self._name = BoldText(name)
 
     @property
-    def value(self):
+    def value(self) -> Box:
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
 
 
@@ -55,11 +55,11 @@ class LinkedText(Box):
         return "[{}]({})".format(self._name.to_markdown(), self.link)
 
     @property
-    def name(self):
+    def name(self) -> Text:
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value: Union[str, Box]) -> None:
         self._name = Text(value)
 
 
@@ -72,16 +72,16 @@ class BoldText(Box):
         return "**{}**".format(self._value.to_markdown())
 
     @property
-    def value(self):
+    def value(self) -> Text:
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
 
 
 class InlineText(Box):
-    def __init__(self, value: Union[str, Text]):
+    def __init__(self, value: Union[str, Box]):
         super().__init__(self)
         self._value = Text(value)
 
@@ -89,16 +89,16 @@ class InlineText(Box):
         return "`{}`".format(self._value.to_markdown())
 
     @property
-    def value(self):
+    def value(self) -> Text:
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
 
 
 class BlockText(Box):
-    def __init__(self, value: Union[str, Text]):
+    def __init__(self, value: Union[str, Box]):
         super().__init__(self)
         self._value = Text(value)
 
@@ -106,16 +106,16 @@ class BlockText(Box):
         return "```\n{}\n```".format(self._value.to_markdown())
 
     @property
-    def value(self):
+    def value(self) -> Text:
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
 
 
 class HighlightableLinks(Box):
-    def __init__(self, links: List[LinkedText], highlighted: int, delimiter=", "):
+    def __init__(self, links: List[LinkedText], highlighted: int, delimiter: str = ", "):
         super().__init__(self)
         self.delimiter = delimiter
         self.links = links
@@ -128,11 +128,11 @@ class HighlightableLinks(Box):
         return self.delimiter.join([self._get_link_markdown(link) for link in self.links])
 
     @property
-    def highlighted(self):
+    def highlighted(self) -> LinkedText:
         return self._highlighted
 
     @highlighted.setter
-    def highlighted(self, highlighted):
+    def highlighted(self, highlighted: int) -> None:
         if len(self.links) <= highlighted < 0:
             raise Exception("Selected is out of bounds")
         self.highlighted = self.links[highlighted]

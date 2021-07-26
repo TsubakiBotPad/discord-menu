@@ -11,8 +11,8 @@ class EmbedField(CustomMapping):
     def fields(self) -> List[str]:
         return ["name", "value", "inline"]
 
-    def __init__(self, title: Union[Box, str], body: Union[Box, str], inline: bool = False, chunk_delimiter='\n',
-                 continuation_title=''):
+    def __init__(self, title: Union[Box, str], body: Union[Box, str], inline: bool = False,
+                 chunk_delimiter: str = '\n', continuation_title: str = ''):
         self.continuation_title = continuation_title
         self.chunk_delimiter = chunk_delimiter
         self._name = Text(title)
@@ -20,19 +20,19 @@ class EmbedField(CustomMapping):
         self.inline = inline
 
     @property
-    def name(self):
+    def name(self) -> Text:
         return self._name
 
     @name.setter
-    def name(self, title):
+    def name(self, title: Union[Box, str]) -> None:
         self._name = Text(title)
 
     @property
-    def value(self):
+    def value(self) -> Union[Box, str]:
         return self._value
 
     @value.setter
-    def value(self, body: Box):
+    def value(self, body: Union[Box, str]) -> None:
         self._value = Box(body)
 
 

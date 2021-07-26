@@ -1,4 +1,4 @@
-from typing import List, Union, Tuple
+from typing import List, Union, Sequence
 
 from discord import Emoji as Emoji
 from discord.ext.commands import Bot
@@ -13,22 +13,22 @@ class EmojiCache:
         self.guild_ids = guild_ids
         self.custom_emojis: List[Emoji] = []
 
-    def set_guild_ids(self, guild_ids: List[int]):
+    def set_guild_ids(self, guild_ids: List[int]) -> None:
         self.guild_ids = guild_ids
 
-    def refresh_from_discord_bot(self, bot: Bot):
+    def refresh_from_discord_bot(self, bot: Bot) -> None:
         self.custom_emojis = [e for g in bot.guilds if g.id in self.guild_ids for e in g.emojis]
 
-    def refresh_from_emojis(self, emojis: List[Emoji]):
+    def refresh_from_emojis(self, emojis: List[Emoji]) -> None:
         self.custom_emojis = emojis
 
-    def get_by_name(self, names: Union[str, Tuple[str], List[str]]):
+    def get_by_name(self, names: Union[str, Sequence[str]]) -> Union[Emoji, str]:
         return self._get_value_by_name(names, self._emoji)
 
-    def get_name_by_name(self, names: Union[str, Tuple[str], List[str]]):
+    def get_name_by_name(self, names: Union[str, Sequence[str]]) -> Union[Emoji, str]:
         return self._get_value_by_name(names, self._emoji_name)
 
-    def _get_value_by_name(self, names: Union[str, Tuple[str], List[str]], f):
+    def _get_value_by_name(self, names: Union[str, Sequence[str]], f) -> Union[Emoji, str]:
         # names will be a tuple if looking up immediately from an emoji list
         # but it becomes a list when deserialized from an ims
         if isinstance(names, str):
@@ -47,14 +47,14 @@ class EmojiCache:
             return self.get_by_name(names[-1])
 
     @staticmethod
-    def _emoji(e: Emoji):
+    def _emoji(e: Emoji) -> Emoji:
         return e
 
     @staticmethod
-    def _emoji_name(e: Emoji):
+    def _emoji_name(e: Emoji) -> str:
         return e.name
 
-    def get_emoji(self, name):
+    def get_emoji(self, name: str) -> str:
         for e in self.custom_emojis:
             if e.name == name:
                 return str(e)

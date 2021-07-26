@@ -1,8 +1,9 @@
 import asyncio
-from typing import Callable, List, Optional, Coroutine, Dict
+from typing import Callable, List, Optional, Coroutine, Dict, Any
 
 import discord
-from discord import Message, RawReactionActionEvent
+from discord import Message, RawReactionActionEvent, Member, Reaction
+from discord.ext.commands import Context
 
 from discordmenu.discord_client import remove_reaction, update_embed_control, send_embed_control, \
     diff_emojis_raw
@@ -12,8 +13,8 @@ from discordmenu.embed.view_state import ViewState
 from discordmenu.emoji.emoji import discord_emoji_to_emoji_name
 from discordmenu.reaction_filter import ReactionFilter
 
-_IntraMessageState = Dict
-NextEmbedControlFunc = Callable[[Optional[Message], Dict, _IntraMessageState], Coroutine[None, None, EmbedControl]]
+_IntraMessageState = Dict[str, Any]
+NextEmbedControlFunc = Callable[[Optional[Message], _IntraMessageState, Any], Coroutine[None, None, EmbedControl]]
 
 
 class EmbedMenu:
@@ -22,7 +23,7 @@ class EmbedMenu:
                  initial_pane: Callable,
                  emoji_config: EmbedMenuEmojiConfig = DEFAULT_EMBED_MENU_EMOJI_CONFIG,
                  unsupported_transition_announce_timeout: int = 3,
-                 delete_func=None
+                 delete_func: NextEmbedControlFunc = None
                  ):
         self.emoji_config = emoji_config
         self.transitions = transitions
@@ -30,7 +31,7 @@ class EmbedMenu:
         self.unsupported_transition_announce_timeout = unsupported_transition_announce_timeout
         self.delete_func = delete_func
 
-    async def create(self, ctx, state: ViewState, message: Message = None):
+    async def create(self, ctx: Context, state: ViewState, message: Message = None) -> Message:
         embed_control: EmbedControl = self.initial_pane(state)
         e_buttons = embed_control.emoji_buttons
 
@@ -39,11 +40,12 @@ class EmbedMenu:
             e_buttons.insert(0, self.emoji_config.delete_message)
         return await send_embed_control(ctx, embed_control, message=message)
 
-    async def transition(self, message, ims, emoji_clicked, member, **data):
+    async def transition(self, message: Message, ims: _IntraMessageState, emoji_clicked: str, member: Member, **data) \
+            -> None:
         transition_func = self.transitions.get(emoji_clicked)
         new_control = None
         if not transition_func or emoji_clicked == discord_emoji_to_emoji_name(
-                        self.emoji_config.delete_message):
+                self.emoji_config.delete_message):
             # Custom deletion has to be handled here instead of falling through to the typical control handling
             # because otherwise we'll have returned None and end up "raising" an unsupported transition
             if emoji_clicked == discord_emoji_to_emoji_name(self.emoji_config.delete_message):
@@ -77,18 +79,20 @@ class EmbedMenu:
         if message.guild:
             await remove_reaction(message, emoji_clicked, member.id)
 
-    async def remove_unsupported_action_response(self, message):
+    async def remove_unsupported_action_response(self, message: Message) -> None:
         await asyncio.sleep(self.unsupported_transition_announce_timeout)
         await message.clear_reaction(self.emoji_config.unsupported_transition)
 
-    async def should_respond_raw(self, message, event: RawReactionActionEvent, reaction_filters: List[ReactionFilter]):
+    async def should_respond_raw(self, message: Message, event: RawReactionActionEvent,
+                                 reaction_filters: List[ReactionFilter]) -> bool:
         for reaction_filter in reaction_filters:
             allow = await reaction_filter.allow_reaction_raw(message, event)
             if not allow:
                 return False
         return True
 
-    async def should_respond(self, message, reaction, reaction_filters: List[ReactionFilter], member):
+    async def should_respond(self, message: Message, reaction: Reaction, reaction_filters: List[ReactionFilter],
+                             member: Member) -> bool:
         for reaction_filter in reaction_filters:
             allow = await reaction_filter.allow_reaction(message, reaction, member)
             if not allow:
