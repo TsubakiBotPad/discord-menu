@@ -1,8 +1,7 @@
 import asyncio
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Sequence
 
-from discord import Embed, Emoji, Forbidden, Message, Reaction
-
+from discord import Embed, Emoji, Forbidden, Message
 from discordmenu.embed.control import EmbedControl
 from discordmenu.emoji.emoji_cache import emoji_cache
 
@@ -75,14 +74,21 @@ def diff_emojis(message: Message, next_embed_control: Optional["EmbedControl"]):
 
 def diff_emojis_raw(current_emojis: List[Union[str, Emoji]],
                     next_emojis: List[Union[str, Emoji]]):
+    add = sorted(
+        set(e for e in next_emojis if e and not emoji_matches(e, current_emojis)),
+        key=lambda x: next_emojis.index(x))
+    remove = list(set(e for e in current_emojis if e and not emoji_matches(e, next_emojis)))
     return {
-        'add': sorted(set(
-            e for e in next_emojis if e and not emoji_matches(e, current_emojis)), key=lambda x: next_emojis.index(x)),
-        'remove': list(set(e for e in current_emojis if e and not emoji_matches(e, current_emojis))),
+        'add': [emoji_cache.get_by_name(e) for e in add],
+        'remove': remove,
     }
 
 
-def emoji_matches(emoji: Union[str, Emoji], emoji_to_match: List[Union[str, Emoji]]) -> bool:
+def emoji_matches(emoji: Union[str, Emoji, Sequence[Union[str, Emoji]]],
+                  emoji_to_match: List[Union[str, Emoji]]) -> bool:
+    if isinstance(emoji, tuple) or isinstance(emoji, list):
+        # handle case of fallback emojis
+        return any(emoji_matches(e, emoji_to_match) for e in emoji)
     # handle case of custom emojis as well as normal unicode emojis
     if isinstance(emoji, Emoji):
         emoji = emoji.name

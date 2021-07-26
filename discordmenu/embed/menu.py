@@ -9,7 +9,6 @@ from discordmenu.embed.control import EmbedControl
 from discordmenu.embed.emoji import DEFAULT_EMBED_MENU_EMOJI_CONFIG, EmbedMenuEmojiConfig
 from discordmenu.embed.view_state import ViewState
 from discordmenu.emoji.emoji import discord_emoji_to_emoji_name
-from discordmenu.emoji.emoji_cache import emoji_cache
 from discordmenu.reaction_filter import ReactionFilter
 
 _IntraMessageState = Dict
@@ -65,7 +64,7 @@ class EmbedMenu:
             new_control = await transition_func(message, ims, **data)
         if new_control is not None:
             current_emojis = [e.emoji for e in message.reactions]
-            next_emojis = new_control.emoji_buttons + [emoji_cache.get_emoji(self.emoji_config.delete_message)]
+            next_emojis = new_control.emoji_buttons + [self.emoji_config.delete_message]
 
             emoji_diff = diff_emojis_raw(current_emojis, next_emojis)
             await update_embed_control(message, new_control, emoji_diff)
