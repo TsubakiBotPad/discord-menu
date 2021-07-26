@@ -1,6 +1,5 @@
 from abc import abstractmethod, ABC
-from collections.abc import Mapping
-from typing import List, Union, Iterable, Any
+from typing import List, Mapping, Union, Iterable, Any
 
 
 class Box:
