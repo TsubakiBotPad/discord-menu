@@ -33,7 +33,7 @@ async def remove_reaction(message: Message, emoji: str, user_id: int) -> None:
 
     try:
         # support custom emojis
-        await message.remove_reaction(emoji_cache.get_emoji(emoji), member)
+        await message.remove_reaction(emoji_cache.get_raw_emoji(emoji), member)
     except Forbidden:
         pass
 
