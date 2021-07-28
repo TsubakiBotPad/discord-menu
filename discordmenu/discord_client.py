@@ -2,9 +2,9 @@ import asyncio
 from typing import Dict, List, Optional, Union, Sequence
 
 from discord import Embed, Emoji, Forbidden, Message
+from discord import NotFound
 from discord.ext.commands import Context
 
-from discord import Embed, Emoji, Forbidden, Message
 from discordmenu.embed.control import EmbedControl
 from discordmenu.emoji.emoji_cache import emoji_cache
 
@@ -47,7 +47,11 @@ async def send_embed_control(ctx: Context, embed_control: EmbedControl, message:
 
     emoji_to_add = [emoji_cache.get_by_name(e) for e in embed_control.emoji_buttons]
     add = [message.add_reaction(e) for e in emoji_to_add]
-    await asyncio.gather(*add)
+    try:
+        await asyncio.gather(*add)
+    except NotFound:
+        # if messsage is deleted early
+        pass
     return message
 
 
@@ -63,11 +67,19 @@ async def update_embed_control(message: Message, next_embed_control: EmbedContro
 
     if emoji_diff:
         add = [message.add_reaction(e) for e in emoji_diff.get('add', [])]
-        await asyncio.gather(*add)
+        try:
+            await asyncio.gather(*add)
+        except NotFound:
+            # if messsage is deleted early
+            pass
 
         if guild_message:
             remove = [message.clear_reaction(e) for e in emoji_diff.get('remove', [])]
-            await asyncio.gather(*remove)
+            try:
+                await asyncio.gather(*remove)
+            except NotFound:
+                # if messsage is deleted early
+                pass
 
 
 def diff_emojis(message: Message, next_embed_control: EmbedControl) -> Dict[str, List[Union[str, Emoji]]]:
@@ -77,7 +89,7 @@ def diff_emojis(message: Message, next_embed_control: EmbedControl) -> Dict[str,
 
 
 def diff_emojis_raw(current_emojis: List[Union[str, Emoji]], next_emojis: List[Union[str, Emoji]]) \
-        -> Dict[str, List[Union[str, Emoji]]]:
+                -> Dict[str, List[Union[str, Emoji]]]:
     add = sorted(
         set(e for e in next_emojis if e and not emoji_matches(e, current_emojis)),
         key=lambda x: next_emojis.index(x))
