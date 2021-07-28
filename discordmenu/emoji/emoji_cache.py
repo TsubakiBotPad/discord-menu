@@ -55,6 +55,7 @@ class EmojiCache:
         return e.name
 
     def get_emoji(self, name: str) -> str:
+        """Use for getting an emoji name to print in text"""
         for e in self.custom_emojis:
             if e.name == name:
                 return str(e)
@@ -64,6 +65,18 @@ class EmojiCache:
             return name
 
         return ":{}:".format(name)
+
+    def get_raw_emoji(self, name: str) -> str:
+        """Same as get_emoji but no colons - use for getting a reaction name"""
+        for e in self.custom_emojis:
+            if e.name == name:
+                return str(e)
+
+        # special case when a unicode character is specified
+        if len(name) == 1 and not is_ascii(name):
+            return name
+
+        return str(name)
 
 
 emoji_cache = EmojiCache([])
