@@ -28,9 +28,10 @@ class LabeledText(Box):
         else:
             self._value = value
 
-    def to_markdown(self) -> str:
         if not self._name:
-            return self._value.to_markdown()
+            raise ValueError("Name must not be empty.")
+
+    def to_markdown(self) -> str:
         if not self._value:
             return self._name.to_markdown()
         return "{} {}".format(self._name.to_markdown(), self._value.to_markdown())
@@ -41,7 +42,10 @@ class LabeledText(Box):
 
     @name.setter
     def name(self, name: Union[str, Box]) -> None:
-        self._name = BoldText(name)
+        name = BoldText(name)
+        if not name:
+            raise ValueError("Name must not be empty.")
+        self._name = name
 
     @property
     def value(self) -> Box:
@@ -52,7 +56,7 @@ class LabeledText(Box):
         self._value = Text(value)
 
     def __bool__(self) -> bool:
-        return bool(self.name or self.value)
+        return bool(self.value)
 
 
 class LinkedText(Box):
