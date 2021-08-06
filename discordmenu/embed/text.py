@@ -15,9 +15,6 @@ class Text(Box):
             return self.value.to_markdown()
         return self.value
 
-    def __bool__(self) -> bool:
-        return bool(self.value)
-
 
 class LabeledText(Box):
     def __init__(self, name: str, value: Union[Box, str]):
@@ -28,12 +25,7 @@ class LabeledText(Box):
         else:
             self._value = value
 
-        if not self._name:
-            raise ValueError("Name must not be empty.")
-
     def to_markdown(self) -> str:
-        if not self._value:
-            return self._name.to_markdown()
         return "{} {}".format(self._name.to_markdown(), self._value.to_markdown())
 
     @property
@@ -42,10 +34,7 @@ class LabeledText(Box):
 
     @name.setter
     def name(self, name: Union[str, Box]) -> None:
-        name = BoldText(name)
-        if not name:
-            raise ValueError("Name must not be empty.")
-        self._name = name
+        self._name = BoldText(name)
 
     @property
     def value(self) -> Box:
@@ -54,9 +43,6 @@ class LabeledText(Box):
     @value.setter
     def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
-
-    def __bool__(self) -> bool:
-        return bool(self.value)
 
 
 class LinkedText(Box):
@@ -76,9 +62,6 @@ class LinkedText(Box):
     def name(self, value: Union[str, Box]) -> None:
         self._name = Text(value)
 
-    def __bool__(self) -> bool:
-        return bool(self.name)
-
 
 class BoldText(Box):
     def __init__(self, value: Union[str, Text, LinkedText]):
@@ -95,9 +78,6 @@ class BoldText(Box):
     @value.setter
     def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
-
-    def __bool__(self) -> bool:
-        return bool(self.value)
 
 
 class InlineText(Box):
@@ -116,9 +96,6 @@ class InlineText(Box):
     def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
 
-    def __bool__(self) -> bool:
-        return bool(self.value)
-
 
 class BlockText(Box):
     def __init__(self, value: Union[str, Box]):
@@ -135,9 +112,6 @@ class BlockText(Box):
     @value.setter
     def value(self, value: Union[str, Box]) -> None:
         self._value = Text(value)
-
-    def __bool__(self) -> bool:
-        return bool(self.value)
 
 
 class HighlightableLinks(Box):
@@ -163,9 +137,6 @@ class HighlightableLinks(Box):
             raise Exception("Selected is out of bounds")
         self.highlighted = self.links[highlighted]
 
-    def __bool__(self) -> bool:
-        return any(self.links)
-
 
 class CustomEmoji(Box):
     def __init__(self, emoji: Emoji):
@@ -174,6 +145,3 @@ class CustomEmoji(Box):
 
     def to_markdown(self) -> str:
         return "<{}:{}:{}>".format("a" if self.emoji.animated else "", self.emoji.name, self.emoji.id)
-
-    def __bool__(self) -> bool:
-        return True
