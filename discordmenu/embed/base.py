@@ -13,10 +13,9 @@ class Box:
         return arg
 
     def to_markdown(self) -> str:
-        return self.delimiter.join(self._get_markdown(a) for a in self._inner_object)
-
-    def __bool__(self) -> bool:
-        return any(self._inner_object)
+        if len(self._inner_object) == 1:
+            return self._get_markdown(self._inner_object[0])
+        return self.delimiter.join([self._get_markdown(a) for a in self._inner_object])
 
 
 class CustomMapping(Mapping[str, Any], ABC):
