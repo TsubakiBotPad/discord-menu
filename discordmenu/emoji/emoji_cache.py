@@ -1,4 +1,4 @@
-from typing import List, Union, Sequence
+from typing import List, Optional, Union, Sequence
 
 from discord import Emoji as Emoji
 from discord.ext.commands import Bot
@@ -54,7 +54,7 @@ class EmojiCache:
     def _emoji_name(e: Emoji) -> str:
         return e.name
 
-    def get_emoji(self, name: str) -> str:
+    def get_emoji(self, name: str, *, default: Optional[str] = None) -> str:
         """Use for getting an emoji name to print in text"""
         for e in self.custom_emojis:
             if e.name == name:
@@ -64,9 +64,9 @@ class EmojiCache:
         if len(name) == 1 and not is_ascii(name):
             return name
 
-        return ":{}:".format(name)
+        return default or ":{}:".format(name)
 
-    def get_raw_emoji(self, name: str) -> str:
+    def get_raw_emoji(self, name: str, *, default: Optional[str] = None) -> str:
         """Same as get_emoji but no colons - use for getting a reaction name"""
         for e in self.custom_emojis:
             if e.name == name:
@@ -76,7 +76,7 @@ class EmojiCache:
         if len(name) == 1 and not is_ascii(name):
             return name
 
-        return str(name)
+        return default or str(name)
 
 
 emoji_cache = EmojiCache([])
