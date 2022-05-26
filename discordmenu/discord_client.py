@@ -6,6 +6,7 @@ from discord import NotFound
 from discord.ext.commands import Context
 
 from discordmenu.embed.control import EmbedControl
+from discordmenu.embed.view import EmbedView
 from discordmenu.emoji.emoji_cache import emoji_cache
 
 
@@ -39,6 +40,8 @@ async def remove_reaction(message: Message, emoji: str, user_id: int) -> None:
 
 
 async def send_embed_control(ctx: Context, embed_control: EmbedControl, message: Optional[Message] = None) -> Message:
+    if type(embed_control.embed_views[0]) != EmbedView:
+        raise TypeError("Check return type of your View, an EmbedView is not being returned")
     new_embed = embed_control.embed_views[0].to_embed()
     if message is None:
         message = await ctx.send(embed=new_embed)
