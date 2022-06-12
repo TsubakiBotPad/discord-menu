@@ -12,6 +12,8 @@ DEFAULT_QUERY_PARAM_KEYS = {
     'thumbnail': 'imst',
 }
 
+_IntraMessageState = Dict[str, Any]
+
 
 class IntraMessageState:
     @staticmethod

@@ -5,7 +5,7 @@ from discord import Embed, Emoji, Forbidden, Message
 from discord import NotFound
 from discord.ext.commands import Context
 
-from discordmenu.embed.control import EmbedControl
+from discordmenu.embed.wrapper import EmbedWrapper
 from discordmenu.embed.view import EmbedView
 from discordmenu.emoji.emoji_cache import emoji_cache
 
@@ -39,16 +39,16 @@ async def remove_reaction(message: Message, emoji: str, user_id: int) -> None:
         pass
 
 
-async def send_embed_control(ctx: Context, embed_control: EmbedControl, message: Optional[Message] = None) -> Message:
-    if type(embed_control.embed_views[0]) != EmbedView:
+async def send_embed(ctx: Context, embed_wrapper: EmbedWrapper, message: Optional[Message] = None) -> Message:
+    if type(embed_wrapper.embed_view) != EmbedView:
         raise TypeError("Check return type of your View, an EmbedView is not being returned")
-    new_embed = embed_control.embed_views[0].to_embed()
+    new_embed = embed_wrapper.embed_view.to_embed()
     if message is None:
         message = await ctx.send(embed=new_embed)
     else:
         await message.edit(embed=new_embed)
 
-    emoji_to_add = [emoji_cache.get_by_name(e) for e in embed_control.emoji_buttons]
+    emoji_to_add = [emoji_cache.get_by_name(e) for e in embed_wrapper.emoji_buttons]
     add = [message.add_reaction(e) for e in emoji_to_add]
     try:
         await asyncio.gather(*add)
@@ -58,14 +58,14 @@ async def send_embed_control(ctx: Context, embed_control: EmbedControl, message:
     return message
 
 
-async def update_embed_control(message: Message, next_embed_control: EmbedControl,
-                               emoji_diff: Dict[str, List[Union[Emoji, str]]]) -> None:
+async def update_embed(message: Message, next_embed: EmbedWrapper,
+                       emoji_diff: Dict[str, List[Union[Emoji, str]]]) -> None:
     guild_message = bool(message.guild)
 
-    if not next_embed_control:
+    if not next_embed:
         await message.delete()
 
-    updated_message_contents = next_embed_control.embed_views[0].to_embed()
+    updated_message_contents = next_embed.embed_view.to_embed()
     await message.edit(embed=updated_message_contents)
 
     if emoji_diff:
@@ -85,9 +85,9 @@ async def update_embed_control(message: Message, next_embed_control: EmbedContro
                 pass
 
 
-def diff_emojis(message: Message, next_embed_control: EmbedControl) -> Dict[str, List[Union[str, Emoji]]]:
+def diff_emojis(message: Message, next_embed: EmbedWrapper) -> Dict[str, List[Union[str, Emoji]]]:
     current_emojis = [e.emoji for e in message.reactions]
-    next_emojis = next_embed_control.emoji_buttons
+    next_emojis = next_embed.emoji_buttons
     return diff_emojis_raw(current_emojis, next_emojis)
 
 
