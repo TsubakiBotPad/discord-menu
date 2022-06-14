@@ -1,14 +1,14 @@
-from typing import List
+from typing import Sequence, Union
 
+SingleEmojiRef = str
 
-class EmbedMenuEmojiConfig:
-    def __init__(self, delete_message: str = "\N{CROSS MARK}",
-                 unsupported_transition: str = "\N{NO ENTRY SIGN}"):
-        self.delete_message = delete_message
-        self.unsupported_transition = unsupported_transition
+# this is used for emoji name fallbacks in case the bot cannot view a particular emoji
+# e.g. not part of the requisite emoji server
+MultiEmojiRef = Sequence[SingleEmojiRef]
 
-    def to_list(self) -> List[str]:
-        return [self.delete_message, self.unsupported_transition]
+EmojiRef = Union[SingleEmojiRef, MultiEmojiRef]
 
+DELETE_MESSAGE_EMOJI = "\N{CROSS MARK}"
+UNSUPPORTED_TRANSITION_EMOJI = "\N{NO ENTRY SIGN}"
 
-DEFAULT_EMBED_MENU_EMOJI_CONFIG = EmbedMenuEmojiConfig()
+DEFAULT_EMOJI_LIST = [DELETE_MESSAGE_EMOJI, UNSUPPORTED_TRANSITION_EMOJI]

@@ -2,7 +2,8 @@ from typing import Iterable, Optional, List, Union
 
 from discord import Reaction, Message, Member, RawReactionActionEvent, Emoji
 
-from discordmenu.embed.emoji import DEFAULT_EMBED_MENU_EMOJI_CONFIG, EmbedMenuEmojiConfig
+from discordmenu.embed.emoji import EmojiRef, \
+    DEFAULT_EMOJI_LIST
 from discordmenu.emoji.emoji import discord_emoji_to_emoji_name
 
 
@@ -33,11 +34,11 @@ class ReactionFilter:
 
 class ValidEmojiReactionFilter(ReactionFilter):
     def __init__(self, valid_emoji_names: Iterable[Union[str, Emoji]],
-                 default_emoji_override: Optional[EmbedMenuEmojiConfig] = None,
+                 default_emoji_override: List[EmojiRef] = None,
                  filters: Optional[ReactionFilter] = None):
         super().__init__(filters)
-        default_emojis = default_emoji_override or DEFAULT_EMBED_MENU_EMOJI_CONFIG
-        emoji_set = set(default_emojis.to_list())
+        default_emojis = default_emoji_override or DEFAULT_EMOJI_LIST
+        emoji_set = set(default_emojis)
         emoji_set.update(valid_emoji_names)
         self.valid_emoji_names = list(emoji_set)
 
