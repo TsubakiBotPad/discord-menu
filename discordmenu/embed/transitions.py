@@ -1,4 +1,4 @@
-from collections import Sequence
+from collections.abc import Sequence
 from typing import Callable, Optional, Coroutine, Any, List, Dict
 
 from discord import Message
@@ -17,20 +17,19 @@ class EmbedTransition:
         self.kwargs = kwargs
 
 
-class EmbedTransitionsBase:
-    def __init__(self, transitions: List[EmbedTransition]):
+class EmbedTransitions:
+    def __init__(self, transitions: List[EmbedTransition] = []):
         self.transitions = transitions
 
-    DATA: Dict[EmojiRef, EmbedTransition] = []
-    HIDDEN_EMOJIS = []
+    DATA: Dict[EmojiRef, EmbedTransition] = {}
 
     @classmethod
-    def emoji_names(cls):
+    def emoji_names(cls) -> List[EmojiRef]:
         """Return all emoji names. If an emoji is specified as a tuple with fallback(s), returns a tuple."""
-        return [k for k, v in cls.DATA.items() if k not in cls.HIDDEN_EMOJIS]
+        return [k for k, v in cls.DATA.items()]
 
     @classmethod
-    def all_emoji_names(cls):
+    def all_emoji_names(cls) -> List[EmojiRef]:
         """
         Return all valid emoji names, including fallbacks.
         In particular, the length of the list returned by this method is not guaranteed to be
@@ -39,8 +38,6 @@ class EmbedTransitionsBase:
         """
         ret = []
         for k, v in cls.DATA.items():
-            if k in cls.HIDDEN_EMOJIS:
-                continue
             if isinstance(k, str):
                 ret.append(k)
             elif isinstance(k, Sequence):
@@ -49,7 +46,7 @@ class EmbedTransitionsBase:
         return ret
 
     @classmethod
-    def transitions(cls):
+    def transitions(cls) -> Dict[EmojiRef, Optional[TransitionEmbedFunc]]:
         ret = {}
         for k, v in cls.DATA.items():
             if v.transition_func is None:
@@ -63,8 +60,7 @@ class EmbedTransitionsBase:
 
     @classmethod
     def pane_types(cls):
-        return {v.kwargs['pane_type']: v.transition_func for k, v in cls.DATA.items() if
-                v.kwargs['pane_type'] and v.kwargs['pane_type'] not in cls.HIDDEN_EMOJIS}
+        return {v.kwargs['pane_type']: v.transition_func for k, v in cls.DATA.items()}
 
     @classmethod
     def respond_to_emoji_with_parent(cls, emoji: str):

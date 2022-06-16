@@ -10,6 +10,9 @@ class ViewState:
         self.raw_query = raw_query
 
     def serialize(self) -> Dict[str, Any]:
+        """
+        This method should be overriden for more complex menus.
+        """
         ret = {
             'raw_query': self.raw_query,
             'menu_type': self.menu_type,
@@ -17,3 +20,13 @@ class ViewState:
         }
         ret.update(self.extra_state)
         return ret
+
+    @classmethod
+    async def deserialize(cls, ims: dict) -> "ViewState":
+        """
+        This method should be overriden for more complex menus.
+        """
+        original_author_id = ims['original_author_id']
+        menu_type = ims['menu_type']
+        raw_query = ims.get('raw_query')
+        return cls(original_author_id, menu_type, raw_query, extra_state=ims)

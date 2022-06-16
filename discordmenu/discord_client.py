@@ -5,8 +5,8 @@ from discord import Embed, Emoji, Forbidden, Message
 from discord import NotFound
 from discord.ext.commands import Context
 
-from discordmenu.embed.wrapper import EmbedWrapper
 from discordmenu.embed.view import EmbedView
+from discordmenu.embed.wrapper import EmbedWrapper
 from discordmenu.emoji.emoji_cache import emoji_cache
 
 
@@ -40,7 +40,7 @@ async def remove_reaction(message: Message, emoji: str, user_id: int) -> None:
 
 
 async def send_embed(ctx: Context, embed_wrapper: EmbedWrapper, message: Optional[Message] = None) -> Message:
-    if type(embed_wrapper.embed_view) != EmbedView:
+    if not issubclass(type(embed_wrapper.embed_view), EmbedView):
         raise TypeError("Check return type of your View, an EmbedView is not being returned")
     new_embed = embed_wrapper.embed_view.to_embed()
     if message is None:
@@ -92,7 +92,7 @@ def diff_emojis(message: Message, next_embed: EmbedWrapper) -> Dict[str, List[Un
 
 
 def diff_emojis_raw(current_emojis: List[Union[str, Emoji]], next_emojis: List[Union[str, Emoji]]) \
-                -> Dict[str, List[Union[str, Emoji]]]:
+        -> Dict[str, List[Union[str, Emoji]]]:
     add = sorted(
         set(e for e in next_emojis if e and not emoji_matches(e, current_emojis)),
         key=lambda x: next_emojis.index(x))
