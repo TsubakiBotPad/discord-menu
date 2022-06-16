@@ -93,3 +93,18 @@ class MessageOwnerReactionFilter(ReactionFilter):
         if reaction.guild_id:
             return reaction.member.id == self.original_author_id
         return True
+
+
+class FriendReactionFilter(ReactionFilter):
+    def __init__(self, original_author_id: int, friends_ids: List[int], filters: Optional[ReactionFilter] = None):
+        super().__init__(filters)
+        self.original_author_id = original_author_id
+        self.friend_ids = friends_ids
+
+    async def _allow_reaction(self, message: Message, reaction: Reaction, member: Member) -> bool:
+        # return await friend_ids(self.original_author_id, member.id)
+        return member.id in self.friend_ids
+
+    async def _allow_reaction_raw(self, message: Message, reaction: RawReactionActionEvent) -> bool:
+        # return self.friend_ids(self.original_author_id, reaction.member.id)
+        return reaction.member.id in self.friend_ids
