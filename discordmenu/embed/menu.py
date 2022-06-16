@@ -1,5 +1,5 @@
 import asyncio
-from typing import Callable, List, Dict
+from typing import Callable, List, Dict, Optional, Protocol
 
 import discord
 from discord import Message, RawReactionActionEvent, Member, Reaction
@@ -28,7 +28,7 @@ class EmbedMenu:
         self.initial_pane = initial_pane
         self.unsupported_transition_announce_timeout = unsupported_transition_announce_timeout
 
-    async def create(self, ctx: Context, state: ViewState, message: Message = None) -> Message:
+    async def create(self, ctx: Context, state: Optional[ViewState] = None, message: Message = None) -> Message:
         embed_wrapper: EmbedWrapper = self.initial_pane(state)
         e_buttons = embed_wrapper.emoji_buttons
 

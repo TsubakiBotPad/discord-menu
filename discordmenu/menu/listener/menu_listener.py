@@ -51,11 +51,11 @@ class MenuListener:
         if emoji_clicked in DEFAULT_EMOJI_LIST:
             return emoji_clicked
         for menu_type, menu_entry in self.menu_map.items():
-            if emoji_clicked in menu_entry.transition.all_emoji_names():
+            if emoji_clicked in menu_entry.transitions.all_emoji_names():
                 return emoji_clicked
         return None
 
-    def _event_is_not_relevant(self, payload: discord.RawReactionActionEvent):
+    async def _event_is_not_relevant(self, payload: discord.RawReactionActionEvent):
         emoji_clicked = self._get_emoji_clicked(payload)
         if emoji_clicked is None:
             return True, None
@@ -84,7 +84,7 @@ class MenuListener:
         if not ims:
             return True, None
 
-        return False, (emoji_clicked, channel, message, reaction, member, ims)
+        return False, [emoji_clicked, channel, message, reaction, member, ims]
 
     async def on_raw_reaction_update(self, payload: discord.RawReactionActionEvent):
         """
@@ -94,14 +94,14 @@ class MenuListener:
         @commands.Cog.listener('on_raw_reaction_add')
         @commands.Cog.listener('on_raw_reaction_remove')
         """
-        event_is_not_relevant, obj_tuple = self._event_is_not_relevant(payload)
+        event_is_not_relevant, obj_tuple = await self._event_is_not_relevant(payload)
         if event_is_not_relevant:
             return
 
         emoji_clicked, channel, message, reaction, member, ims = obj_tuple
-        cog_name, menu, panes = self.get_menu_attributes(ims)
+        cog_name, menu_entry, transitions = self.get_menu_attributes(ims)
         reaction_filters = self.get_reaction_filters(ims)
-        if not (await menu.should_respond(message, reaction, reaction_filters, member)):
+        if not (await menu_entry.should_respond(message, reaction, reaction_filters, member)):
             return
 
         try:
@@ -113,7 +113,7 @@ class MenuListener:
             'reaction': emoji_clicked
         })
 
-        await menu.transition(message, deepcopy(ims), emoji_clicked, member, **data)
+        await menu_entry.transition(message, deepcopy(ims), emoji_clicked, member, **data)
         await self.listener_respond_with_child(deepcopy(ims), message, emoji_clicked, member)
 
     async def listener_respond_with_child(self, menu_1_ims, message_1, emoji_clicked, member):
@@ -154,7 +154,6 @@ class MenuListener:
             ValidEmojiReactionFilter(panes.all_emoji_names()),
             NotPosterEmojiReactionFilter(),
             BotAuthoredMessageReactionFilter(self.bot.user.id),
-            MessageOwnerReactionFilter(ims['original_author_id'])
         ]
         additional_filters = self.get_additional_reaction_filters(ims)
         return reaction_filters + additional_filters
@@ -166,22 +165,24 @@ class MenuListener:
         return []
 
     async def get_menu_context(self, ims):
-        menu_entry = self.get_menu_attributes(ims)
+        cog_name, _, _ = self.get_menu_attributes(ims)
+
+        if not cog_name:
+            return {}
 
         # Get base data from cog assuming it has a function called get_menu_context.
         # This is for a cog to pass data from the cog to the menu if it's needed during a menu transition.
-        cog_name = menu_entry.cog_name
         cog = self.bot.get_cog(cog_name)
         if cog is None:
             raise CogNotLoaded(f"Cog {cog_name} is unloaded.")
         if hasattr(cog, "get_menu_context"):
             return await cog.get_menu_context(ims)
-        return {}
 
     def get_menu_attributes(self, ims):
         menu_type = ims.get('menu_type')
         if menu_type is None:
             raise MissingImsMenuType("Missing IMS menu type")
         if menu_type not in self.menu_map:
-            raise InvalidImsMenuType(f"Invalid IMS menu type: {menu_type}")
-        return self.menu_map[menu_type]
+            raise InvalidImsMenuType(f"Menu type {menu_type} not specified in menu map")
+        menu_entry = self.menu_map[menu_type]
+        return menu_entry.cog_name, menu_entry.menuable.menu(), menu_entry.transitions

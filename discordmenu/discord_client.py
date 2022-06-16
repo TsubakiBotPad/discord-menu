@@ -40,7 +40,7 @@ async def remove_reaction(message: Message, emoji: str, user_id: int) -> None:
 
 
 async def send_embed(ctx: Context, embed_wrapper: EmbedWrapper, message: Optional[Message] = None) -> Message:
-    if type(embed_wrapper.embed_view) != EmbedView:
+    if not issubclass(type(embed_wrapper.embed_view), EmbedView):
         raise TypeError("Check return type of your View, an EmbedView is not being returned")
     new_embed = embed_wrapper.embed_view.to_embed()
     if message is None:

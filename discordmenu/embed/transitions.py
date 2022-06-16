@@ -17,8 +17,8 @@ class EmbedTransition:
         self.kwargs = kwargs
 
 
-class EmbedTransitionsBase:
-    def __init__(self, transitions: List[EmbedTransition]):
+class EmbedTransitions:
+    def __init__(self, transitions: List[EmbedTransition] = []):
         self.transitions = transitions
 
     DATA: Dict[EmojiRef, EmbedTransition] = {}

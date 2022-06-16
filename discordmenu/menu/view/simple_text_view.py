@@ -23,12 +23,11 @@ class SimpleTextViewState(ViewState):
         return cls(ims.get('message'), extra_state=ims)
 
 
-class SimpleTextView:
+class SimpleTextView(EmbedView):
     VIEW_TYPE = 'SimpleText'
 
-    @staticmethod
-    def embed(state: SimpleTextViewState) -> EmbedView:
-        return EmbedView(
+    def __init__(self, state: SimpleTextViewState):
+        super().__init__(
             EmbedMain(description=state.message),
-            embed_footer=embed_footer_with_state(state),
+            embed_footer=embed_footer_with_state(state)
         )
