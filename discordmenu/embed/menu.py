@@ -1,5 +1,5 @@
 import asyncio
-from typing import Callable, List, Dict, Optional, Protocol
+from typing import Callable, List, Dict
 
 import discord
 from discord import Message, RawReactionActionEvent, Member, Reaction

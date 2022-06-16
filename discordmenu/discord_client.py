@@ -2,11 +2,11 @@ import asyncio
 from typing import Dict, List, Optional, Union, Sequence
 
 from discord import Embed, Emoji, Forbidden, Message
-from discord import NotFound, AutoShardedClient
+from discord import NotFound
 from discord.ext.commands import Context
 
-from discordmenu.embed.wrapper import EmbedWrapper
 from discordmenu.embed.view import EmbedView
+from discordmenu.embed.wrapper import EmbedWrapper
 from discordmenu.emoji.emoji_cache import emoji_cache
 
 
