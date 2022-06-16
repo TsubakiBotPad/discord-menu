@@ -6,7 +6,7 @@ from discordmenu.embed.emoji import HOME_EMOJI, EmojiRef
 from discordmenu.embed.menu import EmbedMenu
 from discordmenu.embed.transitions import EmbedTransitions, EmbedTransition
 from discordmenu.embed.wrapper import EmbedWrapper
-from discordmenu.menu.menu_template import PMenuable
+from discordmenu.menu.base import PMenuable
 from discordmenu.menu.view.simple_text_view import SimpleTextViewState, SimpleTextView
 
 

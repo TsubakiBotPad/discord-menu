@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from discordmenu.embed.transitions import EmbedTransitions
-from discordmenu.menu.menu_template import PMenuable
+from discordmenu.menu.base import PMenuable
 
 
 @dataclass
