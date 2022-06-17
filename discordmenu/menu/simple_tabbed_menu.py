@@ -2,17 +2,16 @@ from typing import Optional, Dict
 
 from discord import Message
 
-from discordmenu.embed.emoji import HOME_EMOJI, EmojiRef
+from discordmenu.embed.emoji import EmojiRef
 from discordmenu.embed.menu import EmbedMenu
 from discordmenu.embed.transitions import EmbedTransitions, EmbedTransition
 from discordmenu.embed.wrapper import EmbedWrapper
 from discordmenu.menu.base import PMenuable
-from discordmenu.menu.view.simple_text_view import SimpleTextViewState, SimpleTextView
 from discordmenu.menu.view.simple_tabbed_view import SimpleTabbedViewState, SimpleTabbedView
 
 
-class SimpleTabbedMenu(PMenuable[SimpleTextViewState]):
-    MENU_TYPE = 'SimpleTabbedMenu'
+class SimpleTabbedMenu(PMenuable[SimpleTabbedViewState]):
+    MENU_TYPE = SimpleTabbedViewState.MENU_TYPE
 
     @staticmethod
     def menu() -> EmbedMenu:

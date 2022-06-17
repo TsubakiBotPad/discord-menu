@@ -1,6 +1,7 @@
 import logging
 
 import discord
+from redbot.core import commands
 
 from discordmenu.embed.transitions import EmbedTransitions
 from discordmenu.menu.listener.menu_listener import MenuListener
@@ -9,7 +10,6 @@ from discordmenu.menu.simple_tabbed_menu import SimpleTabbedMenu, SimpleTabbedMe
 from discordmenu.menu.simple_text_menu import SimpleTextMenu
 from discordmenu.menu.view.simple_tabbed_view import SimpleTabbedViewState
 from discordmenu.menu.view.simple_text_view import SimpleTextViewState
-from redbot.core import commands
 
 logger = logging.getLogger('test-bot')
 

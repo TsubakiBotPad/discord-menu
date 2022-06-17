@@ -7,8 +7,10 @@ from discordmenu.menu.footer import embed_footer_with_state
 
 
 class SimpleTextViewState(ViewState):
+    MENU_TYPE = "SimpleTextMenu"
+
     def __init__(self, message, extra_state=None):
-        super().__init__(0, "SimpleTextMenu", "", extra_state=extra_state)
+        super().__init__(0, SimpleTextViewState.MENU_TYPE, "", extra_state=extra_state)
         self.message = message
 
     def serialize(self) -> Dict[str, Any]:
@@ -24,8 +26,6 @@ class SimpleTextViewState(ViewState):
 
 
 class SimpleTextView(EmbedView):
-    VIEW_TYPE = 'SimpleText'
-
     def __init__(self, state: SimpleTextViewState):
         super().__init__(
             EmbedMain(description=state.message),
