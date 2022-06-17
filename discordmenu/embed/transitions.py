@@ -1,3 +1,4 @@
+import json
 from collections.abc import Sequence
 from typing import Callable, Optional, Coroutine, Any, List, Dict
 
@@ -16,12 +17,24 @@ class EmbedTransition:
         self.transition_func = transition_func
         self.kwargs = kwargs
 
+    def __repr__(self):
+        return json.dumps(self.to_json())
+
+    def to_json(self):
+        return {
+            'emoji_ref': self.emoji_ref,
+            'transition': self.transition_func,
+        }
+
 
 class EmbedTransitions:
-    def __init__(self, transitions: List[EmbedTransition] = []):
-        self.transitions = transitions
+    def __init__(self, transitions: List[EmbedTransition] = None):
+        self.transitions = transitions if transitions else []
 
     DATA: Dict[EmojiRef, EmbedTransition] = {}
+
+    def __repr__(self):
+        return json.dumps(self.DATA)
 
     @classmethod
     def emoji_names(cls) -> List[EmojiRef]:

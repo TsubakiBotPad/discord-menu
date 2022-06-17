@@ -1,7 +1,7 @@
 import json
 from collections import UserDict
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Type
 
 from discordmenu.embed.transitions import EmbedTransitions
 from discordmenu.menu.base import PMenuable
@@ -10,7 +10,7 @@ from discordmenu.menu.base import PMenuable
 @dataclass
 class MenuMapEntry:
     menuable: PMenuable
-    transitions: EmbedTransitions = EmbedTransitions()
+    transitions: Type[EmbedTransitions]
     cog_name: Optional[str] = None
 
     def __repr__(self):

@@ -12,7 +12,7 @@ from discordmenu.menu.listener.errors import DiscordRatelimitFilter, MissingImsM
 from discordmenu.menu.listener.menu_map import MenuMap
 from discordmenu.menu.listener.reaction_filter_list import ReactionFilterList
 from discordmenu.reaction_filter import ValidEmojiReactionFilter, BotAuthoredMessageReactionFilter, \
-    MessageOwnerReactionFilter, NotPosterEmojiReactionFilter
+    NotPosterEmojiReactionFilter
 
 logger = logging.getLogger('discordmenu.menu_listener')
 logger.addFilter(DiscordRatelimitFilter())
@@ -99,9 +99,9 @@ class MenuListener:
             return
 
         emoji_clicked, channel, message, reaction, member, ims = obj_tuple
-        cog_name, menu_entry, transitions = self.get_menu_attributes(ims)
+        cog_name, menu, transitions = self.get_menu_entry_attributes(ims)
         reaction_filters = self.get_reaction_filters(ims)
-        if not (await menu_entry.should_respond(message, reaction, reaction_filters, member)):
+        if not (await menu.should_respond(message, reaction, reaction_filters, member)):
             return
 
         try:
@@ -113,7 +113,7 @@ class MenuListener:
             'reaction': emoji_clicked
         })
 
-        await menu_entry.transition(message, deepcopy(ims), emoji_clicked, member, **data)
+        await menu.transition(message, deepcopy(ims), emoji_clicked, member, **data)
         await self.listener_respond_with_child(deepcopy(ims), message, emoji_clicked, member)
 
     async def listener_respond_with_child(self, menu_1_ims, message_1, emoji_clicked, member):
@@ -123,8 +123,8 @@ class MenuListener:
             if failsafe == 10:
                 break
             failsafe += 1
-            _, _, panes_class_1 = self.get_menu_attributes(menu_1_ims)
-            child_data_func = panes_class_1.get_child_data_func(emoji_clicked)
+            _, _, transitions_1 = self.get_menu_entry_attributes(menu_1_ims)
+            child_data_func = transitions_1.get_child_data_func(emoji_clicked)
             try:
                 data = await self.get_menu_context(menu_1_ims)
             except CogNotLoaded:
@@ -138,7 +138,7 @@ class MenuListener:
                     message_2 = await fctx.fetch_message(int(menu_1_ims['child_message_id']))
                     menu_2_ims = message_2.embeds and IntraMessageState.extract_data(message_2.embeds[0])
                     menu_2_ims.update(extra_ims)
-                    _, menu_2, _ = self.get_menu_attributes(menu_2_ims)
+                    _, menu_2, _ = self.get_menu_entry_attributes(menu_2_ims)
                     await menu_2.transition(message_2, menu_2_ims, emoji_simulated_clicked_2, member, **data)
                 except discord.errors.NotFound:
                     break
@@ -149,9 +149,9 @@ class MenuListener:
         """
         User should override this if they want to change the existing filters
         """
-        cog_name, menu, panes = self.get_menu_attributes(ims)
+        cog_name, menu, transitions = self.get_menu_entry_attributes(ims)
         reaction_filters = [
-            ValidEmojiReactionFilter(panes.all_emoji_names()),
+            ValidEmojiReactionFilter(transitions.all_emoji_names()),
             NotPosterEmojiReactionFilter(),
             BotAuthoredMessageReactionFilter(self.bot.user.id),
         ]
@@ -165,7 +165,7 @@ class MenuListener:
         return []
 
     async def get_menu_context(self, ims):
-        cog_name, _, _ = self.get_menu_attributes(ims)
+        cog_name, _, _ = self.get_menu_entry_attributes(ims)
 
         if not cog_name:
             return {}
@@ -178,7 +178,7 @@ class MenuListener:
         if hasattr(cog, "get_menu_context"):
             return await cog.get_menu_context(ims)
 
-    def get_menu_attributes(self, ims):
+    def get_menu_entry_attributes(self, ims):
         menu_type = ims.get('menu_type')
         if menu_type is None:
             raise MissingImsMenuType("Missing IMS menu type")

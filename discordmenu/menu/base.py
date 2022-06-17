@@ -20,3 +20,6 @@ class PMenuable(Protocol[T]):
     @staticmethod
     def embed(state: T) -> Optional[EmbedWrapper]:
         ...
+
+    def __repr__(self):
+        return str(type(self))
