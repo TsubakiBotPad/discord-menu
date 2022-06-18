@@ -11,7 +11,7 @@ from discordmenu.menu.view.simple_text_view import SimpleTextViewState, SimpleTe
 
 
 class SimpleTextMenu(PMenuable[SimpleTextViewState]):
-    MENU_TYPE = 'SimpleTextMenu'
+    MENU_TYPE = SimpleTextViewState.MENU_TYPE
 
     @staticmethod
     def menu() -> EmbedMenu:
