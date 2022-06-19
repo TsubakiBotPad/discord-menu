@@ -74,7 +74,6 @@ class RichTextView(EmbedView):
                          'hendrerit est. Pellentesque eget molestie magna, vitae pulvinar arcu.')
                 ),
             ]
-
         )
 
 

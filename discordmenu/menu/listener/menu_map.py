@@ -1,15 +1,15 @@
 import json
 from collections import UserDict
 from dataclasses import dataclass
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from discordmenu.embed.transitions import EmbedTransitions
-from discordmenu.menu.base import PMenuable
+from discordmenu.menu.base import PMenuable, PMenuableCM
 
 
 @dataclass
 class MenuMapEntry:
-    menuable: PMenuable
+    menuable: Union[PMenuable, PMenuableCM]
     transitions: Type[EmbedTransitions]
     cog_name: Optional[str] = None
 

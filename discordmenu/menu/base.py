@@ -23,3 +23,20 @@ class PMenuable(Protocol[T]):
 
     def __repr__(self):
         return str(type(self))
+
+
+class PMenuableCM(Protocol[T]):
+    @classmethod
+    def menu(cls) -> EmbedMenu:
+        ...
+
+    @classmethod
+    async def embed_from_message(cls, message: Optional[Message], ims, **data) -> EmbedWrapper:
+        ...
+
+    @classmethod
+    def embed(cls, state: T) -> Optional[EmbedWrapper]:
+        ...
+
+    def __repr__(self):
+        return str(type(self))
