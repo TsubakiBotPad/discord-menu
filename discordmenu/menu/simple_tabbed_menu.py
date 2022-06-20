@@ -1,13 +1,44 @@
-from typing import Optional, Dict
+from typing import Any, Dict
+from typing import Optional
 
 from discord import Message
 
+from discordmenu.embed.components import EmbedMain
 from discordmenu.embed.emoji import EmojiRef
 from discordmenu.embed.menu import EmbedMenu
 from discordmenu.embed.transitions import EmbedTransitions, EmbedTransition
+from discordmenu.embed.view import EmbedView
+from discordmenu.embed.view_state import ViewState
 from discordmenu.embed.wrapper import EmbedWrapper
 from discordmenu.menu.base import PMenuable
-from discordmenu.menu.view.simple_tabbed_view import SimpleTabbedViewState, SimpleTabbedView
+from discordmenu.menu.footer import embed_footer_with_state
+
+
+class SimpleTabbedViewState(ViewState):
+    MENU_TYPE = "SimpleTabbedMenu"
+
+    def __init__(self, message, extra_state=None):
+        super().__init__(0, SimpleTabbedViewState.MENU_TYPE, "", extra_state=extra_state)
+        self.message = message
+
+    def serialize(self) -> Dict[str, Any]:
+        ret = super().serialize()
+        ret.update({
+            'message': self.message
+        })
+        return ret
+
+    @classmethod
+    async def deserialize(cls, ims: dict) -> "SimpleTabbedViewState":
+        return cls(ims.get('message'), extra_state=ims)
+
+
+class SimpleTabbedView(EmbedView):
+    def __init__(self, state: SimpleTabbedViewState):
+        super().__init__(
+            EmbedMain(description=state.message),
+            embed_footer=embed_footer_with_state(state)
+        )
 
 
 class SimpleTabbedMenu(PMenuable[SimpleTabbedViewState]):

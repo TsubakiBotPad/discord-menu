@@ -7,10 +7,8 @@ from discordmenu.embed.transitions import EmbedTransitions
 from discordmenu.menu.closable_menu import ClosableMenuViewState
 from discordmenu.menu.listener.menu_listener import MenuListener
 from discordmenu.menu.listener.menu_map import MenuMap, MenuMapEntry
-from discordmenu.menu.simple_tabbed_menu import SimpleTabbedMenu, SimpleTabbedMenuTransitions
-from discordmenu.menu.simple_text_menu import SimpleTextMenu
-from discordmenu.menu.view.simple_tabbed_view import SimpleTabbedViewState
-from discordmenu.menu.view.simple_text_view import SimpleTextViewState
+from discordmenu.menu.simple_tabbed_menu import SimpleTabbedMenu, SimpleTabbedMenuTransitions, SimpleTabbedViewState
+from discordmenu.menu.simple_text_menu import SimpleTextMenu, SimpleTextViewState
 from .examples.closable_menu import ClosableMenus, ClosableView1Props, ClosableView2Props
 from .examples.rich_text_menu import RichTextViewState, RichTextMenu, RichTextMenuTransitions
 from .examples.scrollable_menu import ScrollableMenu, ScrollableMenuTransitions, ScrollableMenuViewState
