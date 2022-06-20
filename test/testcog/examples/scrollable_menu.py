@@ -53,7 +53,7 @@ class ScrollableView0(EmbedView):
             embed_footer=embed_footer_with_state(state),
             embed_fields=[
                 EmbedField(
-                    'Scrollable View Type 0',
+                    'Scrollable View Type 0 of {}'.format(state.total_pages),
                     Box(
                         Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis bibendum mi, ultricies '
                              'hendrerit est. Pellentesque eget molestie magna, vitae pulvinar arcu.'),
@@ -71,7 +71,7 @@ class ScrollableView1(EmbedView):
             embed_footer=embed_footer_with_state(state),
             embed_fields=[
                 EmbedField(
-                    'Scrollable View Type 1',
+                    'Scrollable View Type 1 of {}'.format(state.total_pages),
                     Box(
                         Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis bibendum mi, ultricies '
                              'hendrerit est. Pellentesque eget molestie magna, vitae pulvinar arcu.'),
@@ -89,7 +89,7 @@ class ScrollableView2(EmbedView):
             embed_footer=embed_footer_with_state(state),
             embed_fields=[
                 EmbedField(
-                    'Scrollable View Type 2',
+                    'Scrollable View Type 2 of {}'.format(state.total_pages),
                     Box(
                         Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. In quis bibendum mi, ultricies '
                              'hendrerit est. Pellentesque eget molestie magna, vitae pulvinar arcu.'),
