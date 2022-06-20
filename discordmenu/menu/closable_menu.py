@@ -9,6 +9,8 @@ from discordmenu.menu.base import PMenuableCM
 
 
 class ClosableMenuViewState(ViewState):
+    MENU_TYPE = 'ClosableMenu'
+
     def __init__(self, original_author_id: int, menu_type: str, raw_query: str, view_type: str, sub_props: Any):
         super().__init__(original_author_id, menu_type, raw_query)
         self.view_type = view_type
@@ -16,8 +18,7 @@ class ClosableMenuViewState(ViewState):
 
 
 class ClosableMenusBase(PMenuableCM[ClosableMenuViewState]):
-    MENU_TYPE = 'ClosableMenu'
-    message = None
+    MENU_TYPE = ClosableMenuViewState.MENU_TYPE
     view_types: Dict[str, Type] = {}
 
     @classmethod
