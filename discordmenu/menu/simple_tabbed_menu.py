@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Coroutine, Callable
 from typing import Optional
 
 from discord import Message
@@ -10,6 +10,7 @@ from discordmenu.embed.transitions import EmbedTransitions, EmbedTransition
 from discordmenu.embed.view import EmbedView
 from discordmenu.embed.view_state import ViewState
 from discordmenu.embed.wrapper import EmbedWrapper
+from discordmenu.intra_message_state import _IntraMessageState
 from discordmenu.menu.base import PMenuable
 from discordmenu.menu.footer import embed_footer_with_state
 
@@ -21,6 +22,11 @@ class SimpleTabbedViewState(ViewState):
         super().__init__(0, SimpleTabbedViewState.MENU_TYPE, "", extra_state=extra_state)
         self.current_index = current_index
         self.messages = messages
+
+        reaction_count = len(SimpleTabbedMenuTransitions.DATA)
+        if len(messages) > reaction_count:
+            raise ValueError("SimpleTabbedMenu only supports up to {} tabs. Write a custom menu or extend "
+                             "SimpleTabbedMenuTransitions.DATA for more.".format(reaction_count))
 
     def serialize(self) -> Dict[str, Any]:
         ret = super().serialize()
@@ -51,37 +57,39 @@ class SimpleTabbedMenu(PMenuable[SimpleTabbedViewState]):
         return EmbedMenu(SimpleTabbedMenuTransitions.transitions(), SimpleTabbedMenu.embed)
 
     @staticmethod
-    async def respond_to_1(message: Optional[Message], ims, **data) -> EmbedWrapper:
-        view_state = await SimpleTabbedViewState.deserialize(ims)
-        view_state.current_index = 0
-        return SimpleTabbedMenu.embed(view_state)
+    def respond_to_n_emoji(n: int) -> \
+            Optional[Callable[[Optional[Message], _IntraMessageState, Any], Coroutine[None, None, EmbedWrapper]]]:
+        async def respond_to_n_inner(message: Optional[Message], ims, **data) -> EmbedWrapper:
+            view_state = await SimpleTabbedViewState.deserialize(ims)
+            view_state.current_index = n - 1
+            return SimpleTabbedMenu.embed(view_state)
 
-    @staticmethod
-    async def respond_to_2(message: Optional[Message], ims, **data) -> EmbedWrapper:
-        view_state = await SimpleTabbedViewState.deserialize(ims)
-        view_state.current_index = 1
-        return SimpleTabbedMenu.embed(view_state)
-
-    @staticmethod
-    async def respond_to_3(message: Optional[Message], ims, **data) -> EmbedWrapper:
-        view_state = await SimpleTabbedViewState.deserialize(ims)
-        view_state.current_index = 2
-        return SimpleTabbedMenu.embed(view_state)
+        return respond_to_n_inner
 
     @staticmethod
     def embed(state: SimpleTabbedViewState) -> Optional[EmbedWrapper]:
         if state is None:
             return None
-        return EmbedWrapper(SimpleTabbedView(state), SimpleTabbedMenuTransitions.emoji_names())
+        emojis = SimpleTabbedMenuTransitions.emoji_names()
+        n = len(state.messages)
+        return EmbedWrapper(SimpleTabbedView(state), emojis[:n])
+
+
+def keycap(n: int):
+    if n < 0 or n > 9:
+        raise ValueError("n must be between 0 and 9")
+    return '{}\N{COMBINING ENCLOSING KEYCAP}'.format(n)
 
 
 class SimpleTabbedMenuTransitions(EmbedTransitions):
-    ONE = '1\N{COMBINING ENCLOSING KEYCAP}'
-    TWO = '2\N{COMBINING ENCLOSING KEYCAP}'
-    THREE = '3\N{COMBINING ENCLOSING KEYCAP}'
-
     DATA: Dict[EmojiRef, EmbedTransition] = {
-        ONE: EmbedTransition(ONE, SimpleTabbedMenu.respond_to_1),
-        TWO: EmbedTransition(TWO, SimpleTabbedMenu.respond_to_2),
-        THREE: EmbedTransition(THREE, SimpleTabbedMenu.respond_to_3),
+        keycap(1): EmbedTransition(keycap(1), SimpleTabbedMenu.respond_to_n_emoji(1)),
+        keycap(2): EmbedTransition(keycap(2), SimpleTabbedMenu.respond_to_n_emoji(2)),
+        keycap(3): EmbedTransition(keycap(3), SimpleTabbedMenu.respond_to_n_emoji(3)),
+        keycap(4): EmbedTransition(keycap(4), SimpleTabbedMenu.respond_to_n_emoji(4)),
+        keycap(5): EmbedTransition(keycap(5), SimpleTabbedMenu.respond_to_n_emoji(5)),
+        keycap(6): EmbedTransition(keycap(6), SimpleTabbedMenu.respond_to_n_emoji(6)),
+        keycap(7): EmbedTransition(keycap(7), SimpleTabbedMenu.respond_to_n_emoji(7)),
+        keycap(8): EmbedTransition(keycap(8), SimpleTabbedMenu.respond_to_n_emoji(8)),
+        keycap(9): EmbedTransition(keycap(9), SimpleTabbedMenu.respond_to_n_emoji(9)),
     }

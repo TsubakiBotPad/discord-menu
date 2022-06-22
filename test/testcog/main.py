@@ -41,7 +41,8 @@ class TestCog(commands.Cog):
 
     @commands.command(aliases=['t2'])
     async def simpletabbedmenu(self, ctx):
-        vs = SimpleTabbedViewState(["Message 1", "Message 2", "Message 3"], 0)
+        vs = SimpleTabbedViewState(
+            ["Message 1", "Message 2", "Message 3", "Message 4", "Message 5"], 0)
         await SimpleTabbedMenu.menu().create(ctx, vs)
 
     @commands.command(aliases=['t3'])
