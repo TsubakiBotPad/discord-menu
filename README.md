@@ -1,133 +1,160 @@
-## What is DiscordMenu?
-DiscordMenu is a loose framework for creating menus out of Discord embeds where the user can click specified emojis and the embed responds according to preset instructions. Its primary advantages over other menu libraries are:
+# What is discord-menu?
 
-1. **Statelessness** - through use of an *intra-message state*, or "IMS," no data needs to be stored on the bot's server, allowing emojis never to expire (potentially dependent on which type of listener you are).
-2. **Flexibility** - arbitrary code can be executed upon emoji clicks, allowing for features like child menus, "menu friends," and more!
+discord-menu is a flexible python framework for creating interactive menus out of Discord Embeds. Users can click specified emojis and the embed responds according to preset instructions.
 
-## What is an IMS?
+Its primary features are:
 
-The IMS is physically stored in a small icon in the footer of your menu next to the text, "Requester may click the reactions below to switch tabs," as a serialized json. It contains whatever data you decide to store to it, which should minimally include:
+1. **Declaritive UI Syntax** - React/SwiftUI like definition of Views.
+1. **Stateless compute** - Through the use of IntraMessageState, menus do not require maintaining a session. through use of an _intra-message state_, or "IMS," no data needs to be stored on the bot's server, allowing emojis never to expire (potentially dependent on which type of listener you are).
+1. **Event driven** - No polling needed and interactions respond immediately to input.
+1. **Scalable state** - Message state is managed directly in the Embed, leveraging Discord's capabilities.
+1. **Flexibility** - Arbitrary code can be executed upon emoji clicks, allowing for complex features like pagination, dependent menus, or user authorizaton!
 
-* The ID of the author of the initial command, so that the bot can respond only to reactions belonging to the right person or people
-* A string representation of the menu type, to be fed to your `menu_map` (see "Parts of a menu" below)
-* The current reaction list, so that you don't unintentionally remove any reactions when updating the menu
+Insert GIF examples here:
+[example1][example2][example3]
 
-Once a reaction is clicked and registered by the listener, the listener will first check if there is a valid IMS attached to the message. If not, it immediately returns. If there is one, it then checks for a valid `menu_type`. Only if there is a valid `menu_type` will it proceed to process the message. For more information, see "Control flow" below.
+# Installation
+
+Install via pip:
+
+`pip install discord-menu`
+
+# How to use
+
+## Simple Text Menu
+
+```python
+from discordmenu.menu.listener.menu_listener import MenuListener
+from discordmenu.menu.listener.menu_map import MenuMap, MenuMapEntry
+from discordmenu.menu.simple_text_menu import SimpleTextMenu, SimpleTextViewState
+
+menu_map = MenuMap()
+menu_map[SimpleTextMenu.MENU_TYPE] = MenuMapEntry(SimpleTextMenu, EmbedTransitions)
+
+class TestCog(commands.Cog):
+    def __init__(self, bot):
+        self.listener = MenuListener(bot, menu_map)
+
+    async def simplemenu(self, ctx):
+        await SimpleTextMenu.menu().create(ctx, SimpleTextViewState("Hello World!"))
+```
+
+![simpletext](https://user-images.githubusercontent.com/880610/174766480-950266a4-1967-47fb-ae9c-7a8a1cea449f.gif)
+
+[Code](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py#L38)
+
+## Simple Tabbed Menu
+
+```python
+from discordmenu.menu.listener.menu_listener import MenuListener
+from discordmenu.menu.listener.menu_map import MenuMap, MenuMapEntry
+from discordmenu.menu.simple_tabbed_menu import SimpleTabbedMenu, SimpleTabbedMenuTransitions, SimpleTabbedViewState
+
+menu_map = MenuMap()
+menu_map[SimpleTabbedMenu.MENU_TYPE] = MenuMapEntry(SimpleTabbedMenu, SimpleTabbedMenuTransitions)
+
+class TestCog(commands.Cog):
+    def __init__(self, bot):
+        self.listener = MenuListener(bot, menu_map)
+
+    async def simpletabbedmenu(self, ctx):
+        vs = SimpleTabbedViewState("Initial message.", ["Message 1", "Message 2", "Message 3"])
+        await SimpleTabbedMenu.menu().create(ctx, vs)
+```
+
+![simpletabbed](https://user-images.githubusercontent.com/880610/174983540-2a8a5864-9be6-4c28-9727-56a50f779118.gif)
+
+[Code](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py#L43)
+
+## Scrollable Menu
+
+TODO
+
+## Advanced Usage
+
+For info on how to create complex menus, refer to [documentation](https://github.com/TsubakiBotPad/discord-menu/blob/main/docs/advanced-usage.md) on advanced usage.
+
+# Supported Convenience Menus
+
+1. **SimpleTextMenu** - Use this if you just want to display some text.
+1. **SimpleTabbedMenu** - This is useful if you a few different panes of content that a user would select between.
+1. **ClosableMenus** - If you want a simple view with just a basic close button.
+
+# Key Concepts
+
+<img width="903" alt="image" src="https://user-images.githubusercontent.com/880610/174849081-1b07af86-f3cf-442d-8446-0ef552e8c89a.png" />
+
+Menus are easiest understood through the lens of the underlying ViewState (a.k.a ViewModel in MVVM architecture). Views are a constructed from combination of a declarative template (i.e HTML DOM) and dynamic data from the ViewState.
+
+EmbedTranstions are code that determintes how ViewStates transform based on external input (e.g emoji clicked). As the ViewState change, in turn so does the visualization (View) associated with it.
+
+## Components
+
+1. **EmbedViewState** - This is the set of data that can be modified by external inputs (e.g user clicks). The state can be used to display dynamic information on the View (e.g page number).
+
+1. **EmbedView** - This is the code for what is displayed on the user's screen in Discord. It takes input from the ViewState and transforms it into UI elements.
+
+1. **EmbedTransitions** - Transitions are code that is run in order to convert the current ViewState to the next ViewState. Often times, this means recomputing a new ViewState entirely to show different data. In more complex cases, data can be carried over from the previous state in order to influence what to display next (e.g query params, page history)
+
+1. **EmbedMenu** - Finally, the Menu is conceptually a container for all of the subcomponents described above. It is what a user sees and interacts with on Discord.
+
+## Intra Message State (IMS)
+
+`discord-menu` does not require sessions, which allows the service it runs on to be stateless. If the bot turns off and on again, previous menus that were instantiated by the bot will still be able to function when the bot returns and responds to the user request. `discord-menu` stores menu state within Discord Embed images in locations that generally do not interfere with the user experience.
+
+Due to this, **all Menus that require state also need to contain a Discord Embed image**.
+
+These images can either be in the Embed `author`, `image`, `thumbnail`, or `footer`. By default, we recommend using the Embed footer as the UI element is most pleasant and unintrusive.
+
+# Running Tests + Sample Code
+
+## Prerequisite: Create a Discord Bot
+
+If you don't have one already, follow the instructions to create a bot in Red's official documentation:
+
+[Creating a bot account](https://docs.discord.red/en/stable/bot_application_guide.html#creating-a-bot-account)
+
+Keep the bot `token` that you get from Discord at the end of the instructions handy - you will need it to set up the bot later.
+
+## Installation
+
+1. Create a python 3 venv in the `test` folder. `virtualenv -p python3 <envname>`
+1. Activate the venv.
+1. `pip install -r requirements.txt`
+
+The above steps install Red-Discord bot framework. You can now follow more detailed [instructions](https://docs.discord.red/en/stable/install_guides/mac.html#setting-up-and-running-red) to startup the bot. Or run these in command line and follow the prompts:
+
+- `redbot-setup`
+- `redbot <bot_name>`
+
+## Interact with the bot
+
+The rest of the guide takes place from inside Discord. Replace `^` with your prefix to talk to your bot.
+
+1. Once the bot is launched, set it to the `test` directory as a cog path.
+
+```
+^addpath /Users/me/src/discord-menu/test
+```
+
+1. Load `testcog`
+
+```
+^reload testcog
+```
+
+1. Run a test command. Test [code](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py#L37) for simplemenu.
+
+```
+^t
+```
+
+![simpletext](https://user-images.githubusercontent.com/880610/174766480-950266a4-1967-47fb-ae9c-7a8a1cea449f.gif)
+
+# Contributing
+
+If you encounter a bug or would like to make a feature request, please file a Github issue or submit a pull request.
 
 ## Features of DiscordMenu
+
 In addition to the ability to make menus for you, there are some additional specific features of DiscordMenu that you should know about:
-
-### Emoji cache
-If you have some custom emojis that your bot is allowed to use, a bad actor could theoretically upload a different emoji into another server that the bot is also in, with the same name, and trick the bot into printing the wrong emoji instead. To counteract this problem, you can specify a list of "allowed emoji servers," and the DiscordMenu emoji cache helps you do this.
-
-## Parts of a menu
-### Defined once per bot
-#### A listener
-Either `on_reaction_add` or `on_raw_reaction_add`, this is how the bot actually listens to reactions. For an example listener, see the [MenuListener cog](https://github.com/TsubakiBotPad/misc-cogs/tree/master/menulistener) used by Tsubaki Bot. This cog supports multi-level menus; however, the lower level(s) of menus must all be `IdMenu` types currently.
-#### A footer to hold the ims
-You will also need an `embed_footer_with_state` function to use. If you want to use menus in multiple cogs, you should probably write this function in a library external to your bot. For example, in Tsubaki Bot, we have one [defined in tsutils](https://github.com/TsubakiBotPad/tsutils/blob/master/tsutils/menu/footers.py):
-
-```python
-def embed_footer_with_state(state: ViewState, image_url=TSUBAKI_FLOWER_ICON_URL):
-    url = IntraMessageState.serialize(image_url, state.serialize())
-    return EmbedFooter(
-        'Requester may click the reactions below to switch tabs',
-        icon_url=url)
-```
-#### A base class for your panes
-In Tsubaki Bot, we [define this in tsutils](https://github.com/TsubakiBotPad/tsutils/blob/master/tsutils/menu/panes.py). You will be able to overwrite `INITIAL_EMOJI`, `DATA`, and `HIDDEN_EMOJIS` in each individual menu; the other functions shouldn't be overridden anywhere.
-
-TODO: Add a more general version of this class directly to `discordmenu`.
-
-### Defined once per cog
-#### Registering the menu
-You will also need to register your cog to the listener. How you do this may vary depending on your bot framework, but for example, in [`padinfo/__init__.py`](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/__init__.py) we run:
-
-```python
-    bot.loop.create_task(n.register_menu())
-```
-
-The method `register_menu()` is defined in [`padinfo.py`](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/padinfo.py) as:
-
-```python
-async def register_menu(self):
-    await self.bot.wait_until_ready()
-    menulistener = self.bot.get_cog("MenuListener")
-    if menulistener is None:
-        logger.warning("MenuListener is not loaded.")
-        return
-    await menulistener.register(self)
-```
-#### Defining the menu map
-You will need a `menu_map` file that maps strings to menu classes & panes classes. For example, see [menu_map.py](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/menu/menu_map.py) in the `padinfo` cog in Tsubaki bot.
-
-The `menu_map` is also imported and set as a class constant at the top of the cog:
-
-```python
-class PadInfo(commands.Cog):
-    """Info for PAD Cards"""
-
-    menu_map = padinfo_menu_map
-```
-#### Setting default data (optional)
-Optionally, you may want a function called `get_menu_default_data`. For example, in the [`padinfo` cog](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/padinfo.py), this method is how we pass `DGCOG` to the menu:
-
-```python
-    async def get_menu_default_data(self, ims):
-        data = {
-            'dgcog': await self.get_dgcog(),
-            'user_config': await BotConfig.get_user(self.config, ims['original_author_id'])
-        }
-        return data
-```
-### Defined once per menu
-You will need a `menu` file containing:
-* A Menu class, consisting of:
-    * A `menu` method
-    * One or more `respond_with` methods
-    * One or more `control` methods
-* A `Panes` class, which maps possible emojis to their `respond_with` methods and `View` types as well as, optionally, child menu view types
-* Optionally, an `EmojiClass` that provides simple text names for emojis; this just makes defining the `Panes` class easier
-
-As an example, we can look at the [`simple_text` menu](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/menu/simple_text.py) used by Tsubaki Bot. It has two `respond_with` messages: one to print the message, and one to delete. Its only control prints the message.
-
-> Why is there a custom `respond_with_delete` method, instead of using the built-in delete handler?
-
-An excellent question! The answer is: because `SimpleTextMenu` is the placeholder used when a child menu hasn't been populated yet! It's convenient to have this custom delete message for that reason; don't let its presence distract you from its ability to serve as an otherwise-straightforward example.
-
-You will also need a `view` file, containing:
-* A `ViewState` class, which determines how to serialize and deserialize the IMS.
-* A `View` class, which is the definition of the embed 
-
-As an example, we can look at the [`simple_text` view](https://github.com/TsubakiBotPad/pad-cogs/blob/master/padinfo/view/simple_text.py) used by Tsubaki Bot. It only has two non-default properties: color and message contents. Note that creation of a base class like we did in the padinfo cog is OPTIONAL. Make one if you are making multiple menus in your cog, and they are related enough that a custom `ViewStateBase` class is helpful. (You can always go back and make one later if you decide you need to, and you didn't make one initially.)
-
-Finally, in the main cog file, you will need to write some command that creates a menu. We can no longer use `SimpleText` as our example because this menu is not created directly through a command, so we will use `LeaderSkillSingle` instead, another relatively simple menu. The following command instantiates a `LeaderSkillSingleMenu`:
-
-```python
-        # code to assign a value to monster
-        color = await self.get_user_embed_color(ctx)
-        original_author_id = ctx.message.author.id
-        state = LeaderSkillSingleViewState(original_author_id, LeaderSkillSingleMenu.MENU_TYPE, query, color, monster)
-        menu = LeaderSkillSingleMenu.menu()
-        await menu.create(ctx, state)
-```
-## Flow of information
-### When a menu is created
-
-Let's look at an example from Tsubaki's `padinfo` cog:
-
-```python
-        alt_monsters = IdViewState.get_alt_monsters_and_evos(dgcog, monster)
-        transform_base, true_evo_type_raw, acquire_raw, base_rarity = \
-            await IdViewState.query(dgcog, monster)
-        full_reaction_list = [emoji_cache.get_by_name(e) for e in IdMenuPanes.emoji_names()]
-        initial_reaction_list = await get_id_menu_initial_reaction_list(ctx, dgcog, monster, full_reaction_list)
-
-        state = IdViewState(original_author_id, IdMenu.MENU_TYPE, raw_query, query, color, monster, alt_monsters,
-                            transform_base, true_evo_type_raw, acquire_raw, base_rarity,
-                            use_evo_scroll=settings.checkEvoID(ctx.author.id), reaction_list=initial_reaction_list)
-        menu = IdMenu.menu()
-        await menu.create(ctx, state)
-```
-
-The first four lines compute values and are included only for context. Then we create an `IdViewState`. This line calls the `__init__` method of the `IdViewState` class and instantiates an `IdViewState` as `state`. We also instantiate an `IdMenu` as `menu`. We then call the `create` method of `menu`, which you will recall is a static method.
