@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 from typing import Optional
 
 from discord import Message
@@ -17,26 +17,28 @@ from discordmenu.menu.footer import embed_footer_with_state
 class SimpleTabbedViewState(ViewState):
     MENU_TYPE = "SimpleTabbedMenu"
 
-    def __init__(self, message, extra_state=None):
+    def __init__(self, messages: List[str], current_index: int, extra_state=None):
         super().__init__(0, SimpleTabbedViewState.MENU_TYPE, "", extra_state=extra_state)
-        self.message = message
+        self.current_index = current_index
+        self.messages = messages
 
     def serialize(self) -> Dict[str, Any]:
         ret = super().serialize()
         ret.update({
-            'message': self.message
+            'messages': self.messages,
+            'current_index': self.current_index,
         })
         return ret
 
     @classmethod
     async def deserialize(cls, ims: dict) -> "SimpleTabbedViewState":
-        return cls(ims.get('message'), extra_state=ims)
+        return cls(ims.get('messages'), ims.get('current_index'), extra_state=ims)
 
 
 class SimpleTabbedView(EmbedView):
     def __init__(self, state: SimpleTabbedViewState):
         super().__init__(
-            EmbedMain(description=state.message),
+            EmbedMain(description=state.messages[state.current_index]),
             embed_footer=embed_footer_with_state(state)
         )
 
@@ -51,19 +53,19 @@ class SimpleTabbedMenu(PMenuable[SimpleTabbedViewState]):
     @staticmethod
     async def respond_to_1(message: Optional[Message], ims, **data) -> EmbedWrapper:
         view_state = await SimpleTabbedViewState.deserialize(ims)
-        view_state.message = "This is message 1."
+        view_state.current_index = 0
         return SimpleTabbedMenu.embed(view_state)
 
     @staticmethod
     async def respond_to_2(message: Optional[Message], ims, **data) -> EmbedWrapper:
         view_state = await SimpleTabbedViewState.deserialize(ims)
-        view_state.message = "This is message 2."
+        view_state.current_index = 1
         return SimpleTabbedMenu.embed(view_state)
 
     @staticmethod
     async def respond_to_3(message: Optional[Message], ims, **data) -> EmbedWrapper:
         view_state = await SimpleTabbedViewState.deserialize(ims)
-        view_state.message = "This is message 3."
+        view_state.current_index = 2
         return SimpleTabbedMenu.embed(view_state)
 
     @staticmethod
