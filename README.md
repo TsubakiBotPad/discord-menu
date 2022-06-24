@@ -10,9 +10,6 @@ Its primary features are:
 1. **Scalable state** - Message state is managed directly in the Embed, leveraging Discord's capabilities.
 1. **Flexibility** - Arbitrary code can be executed upon emoji clicks, allowing for complex features like pagination, dependent menus, or user authorizaton!
 
-Insert GIF examples here:
-[example1][example2][example3]
-
 # Installation
 
 Install via pip:
@@ -92,7 +89,7 @@ TODO
 
 ## Advanced Usage
 
-For info on how to create complex menus, refer to [documentation](https://github.com/TsubakiBotPad/discord-menu/blob/main/docs/advanced-usage.md) on advanced usage.
+If you're looking for ideas on what you can do with this framework, or for info on how to create complex menus, refer to [documentation](https://github.com/TsubakiBotPad/discord-menu/blob/main/docs/advanced-usage.md) on advanced usage.
 
 # Supported Convenience Menus
 
@@ -102,13 +99,13 @@ For info on how to create complex menus, refer to [documentation](https://github
 
 # Key Concepts
 
-<img width="903" alt="image" src="https://user-images.githubusercontent.com/880610/174849081-1b07af86-f3cf-442d-8446-0ef552e8c89a.png" />
+## Components of a Menu
+
+<img width="515" alt="image" src="https://user-images.githubusercontent.com/880610/175546502-eb294f6e-8073-4b6f-9f43-1d9d0fbb4590.png">
 
 Menus are easiest understood through the lens of the underlying ViewState (a.k.a ViewModel in MVVM architecture). Views are a constructed from combination of a declarative template (i.e HTML DOM) and dynamic data from the ViewState.
 
 EmbedTranstions are code that determintes how ViewStates transform based on external input (e.g emoji clicked). As the ViewState change, in turn so does the visualization (View) associated with it.
-
-## Components
 
 1. **EmbedViewState** - This is the set of data that can be modified by external inputs (e.g user clicks). The state can be used to display dynamic information on the View (e.g page number).
 
@@ -118,13 +115,27 @@ EmbedTranstions are code that determintes how ViewStates transform based on exte
 
 1. **EmbedMenu** - Finally, the Menu is conceptually a container for all of the subcomponents described above. It is what a user sees and interacts with on Discord.
 
-## Intra Message State (IMS)
+## Intra Message State
 
 `discord-menu` does not require sessions, which allows the service it runs on to be stateless. If the bot turns off and on again, previous menus that were instantiated by the bot will still be able to function when the bot returns and responds to the user request. `discord-menu` stores menu state within Discord Embed images in locations that generally do not interfere with the user experience.
 
-Due to this, **all Menus that require state also need to contain a Discord Embed image**.
+Due to this, **all Menus that require state also need to contain a Discord Embed image**. This will be the case for most menus, short of simple displays that are never edited (a "menu" with no controls).
 
 These images can either be in the Embed `author`, `image`, `thumbnail`, or `footer`. By default, we recommend using the Embed footer as the UI element is most pleasant and unintrusive.
+
+In practice, Intra Message State is saved by subclassing `ViewState` and attaching it on `Menu.create(...)` or within an `EmbedTransition` function as part of the main API flow.
+
+## Menu Lifecycle
+
+<img width="771" alt="image" src="https://user-images.githubusercontent.com/880610/175549719-85ae276e-a04d-4aa4-be85-354de12383e7.png">
+
+Menus in this library are called upon in two separate contexts - on menu creation and on discord reaction. These two contexts do not share any process state, which allows the system to be independent and scalable.
+
+In the creation case, a user defined `EmbedMenu` and seed `ViewState` is created from user input, and is translated by `discord-menu` into an `EmbedWrapper` that is sent to Discord. Discord servers receive the request and displays the menu message to the end user in the Discord app.
+
+Sometime later, a user may click a reaction on the menu, which triggers the `on_reaction_add` code path in the bot. `discord-menu` extracts the `ViewState` from the event, and executes user defined code in `EmbedTransition` which produces the next `EmbedWrapper` to be sent to discord.
+
+In both cases above, the `EmbedWrapper` are independently derived from the underlying `EmbedViewState`. As long as the user defined `EmbedMenu` and its corresponding code is independently loadable in the two code paths, the system's main limitation is the data storage size of an `EmbedViewState`, which is unlikely to be an issue.
 
 # Running Tests + Sample Code
 
@@ -175,6 +186,4 @@ The rest of the guide takes place from inside Discord. Replace `^` with your pre
 
 If you encounter a bug or would like to make a feature request, please file a Github issue or submit a pull request.
 
-## Features of DiscordMenu
-
-In addition to the ability to make menus for you, there are some additional specific features of DiscordMenu that you should know about:
+Also, if you don't understand something in the documentation, you are experiencing problems, or you just need a gentle nudge in the right direction, please don't hesitate to join the [discord server](https://discord.gg/QCRxNtC).
