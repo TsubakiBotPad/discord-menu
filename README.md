@@ -133,7 +133,7 @@ In the creation case, a user defined `EmbedMenu` and seed `ViewState` is created
 
 Sometime later, a user may click a reaction on the menu, which triggers the `on_reaction_add` code path in the bot. `discord-menu` extracts the `ViewState` from the event, and executes user defined code in `EmbedTransition` which produces the next `EmbedWrapper` to be sent to discord.
 
-In both cases above, the `EmbedWrapper` are independently derived from the underlying `EmbedViewState`. As long as the user defined `EmbedMenu` and it's corresponding code is independently loadable in the two code paths, the constraint on the system is merely limited only to data storage of an `EmbedViewState`, which is unlikely an issue.
+In both cases above, the `EmbedWrapper` are independently derived from the underlying `EmbedViewState`. As long as the user defined `EmbedMenu` and its corresponding code is independently loadable in the two code paths, the system's main limitation is the data storage size of an `EmbedViewState`, which is unlikely to be an issue.
 
 # Running Tests + Sample Code
 
