@@ -53,7 +53,7 @@ class TestCog(commands.Cog):
 
 [Code](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py#L38)
 
-## Simple Tabbed Menu
+## Simple Tabbed Text Menu
 
 ```python
 import discord
@@ -61,10 +61,12 @@ from redbot.core import commands
 
 from discordmenu.menu.listener.menu_listener import MenuListener
 from discordmenu.menu.listener.menu_map import MenuMap, MenuMapEntry
-from discordmenu.menu.simple_tabbed_menu import SimpleTabbedMenu, SimpleTabbedMenuTransitions, SimpleTabbedViewState
+from discordmenu.menu.simple_tabbed_text_menu import SimpleTabbedTextMenu, SimpleTabbedTextMenuTransitions,
+    SimpleTabbedTextViewState
 
 menu_map = MenuMap()
-menu_map[SimpleTabbedMenu.MENU_TYPE] = MenuMapEntry(SimpleTabbedMenu, SimpleTabbedMenuTransitions)
+menu_map[SimpleTabbedTextMenu.MENU_TYPE] = MenuMapEntry(SimpleTabbedTextMenu, SimpleTabbedTextMenuTransitions)
+
 
 class TestCog(commands.Cog):
     def __init__(self, bot):
@@ -75,12 +77,12 @@ class TestCog(commands.Cog):
     async def on_raw_reaction_update(self, payload: discord.RawReactionActionEvent):
         await self.listener.on_raw_reaction_update(payload)
 
-    async def simpletabbedmenu(self, ctx):
-        vs = SimpleTabbedViewState("Initial message.", ["Message 1", "Message 2", "Message 3"])
-        await SimpleTabbedMenu.menu().create(ctx, vs)
+    async def simpletabbedtextmenu(self, ctx):
+        vs = SimpleTabbedTextViewState("Initial message.", ["Message 1", "Message 2", "Message 3"])
+        await SimpleTabbedTextMenu.menu().create(ctx, vs)
 ```
 
-![simpletabbed](https://user-images.githubusercontent.com/880610/174983540-2a8a5864-9be6-4c28-9727-56a50f779118.gif)
+![simpletabbedtext](https://user-images.githubusercontent.com/880610/174983540-2a8a5864-9be6-4c28-9727-56a50f779118.gif)
 
 [Code](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py#L43)
 
@@ -95,7 +97,7 @@ For info on how to create complex menus, refer to [documentation](https://github
 # Supported Convenience Menus
 
 1. **SimpleTextMenu** - Use this if you just want to display some text.
-1. **SimpleTabbedMenu** - This is useful if you a few different panes of content that a user would select between.
+1. **SimpleTabbedTextMenu** - This is useful if you a few different panes of text content that a user would select between.
 1. **ClosableMenus** - If you want a simple view with just a basic close button.
 
 # Key Concepts

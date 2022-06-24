@@ -7,7 +7,8 @@ from discordmenu.embed.transitions import EmbedTransitions
 from discordmenu.menu.closable_menu import ClosableMenuViewState
 from discordmenu.menu.listener.menu_listener import MenuListener
 from discordmenu.menu.listener.menu_map import MenuMap, MenuMapEntry
-from discordmenu.menu.simple_tabbed_menu import SimpleTabbedMenu, SimpleTabbedMenuTransitions, SimpleTabbedViewState
+from discordmenu.menu.simple_tabbed_text_menu import SimpleTabbedTextMenu, SimpleTabbedTextMenuTransitions, \
+    SimpleTabbedTextViewState
 from discordmenu.menu.simple_text_menu import SimpleTextMenu, SimpleTextViewState
 from discordmenu.menu.tabbed_menu import TabbedMenu, TabbedMenuTransitions
 from .examples.closable_menu import ClosableMenus, ClosableView1Props, ClosableView2Props
@@ -19,7 +20,7 @@ logger = logging.getLogger('test-bot')
 
 menu_map = MenuMap()
 menu_map[SimpleTextMenu.MENU_TYPE] = MenuMapEntry(SimpleTextMenu, EmbedTransitions)
-menu_map[SimpleTabbedMenu.MENU_TYPE] = MenuMapEntry(SimpleTabbedMenu, SimpleTabbedMenuTransitions)
+menu_map[SimpleTabbedTextMenu.MENU_TYPE] = MenuMapEntry(SimpleTabbedTextMenu, SimpleTabbedTextMenuTransitions)
 menu_map[RichTextMenu.MENU_TYPE] = MenuMapEntry(RichTextMenu, RichTextMenuTransitions)
 menu_map[ClosableMenus.MENU_TYPE] = MenuMapEntry(ClosableMenus, EmbedTransitions)
 menu_map[ScrollableMenu.MENU_TYPE] = MenuMapEntry(ScrollableMenu, ScrollableMenuTransitions)
@@ -43,10 +44,10 @@ class TestCog(commands.Cog):
         await SimpleTextMenu.menu().create(ctx, vs)
 
     @commands.command(aliases=['t2'])
-    async def simpletabbedmenu(self, ctx):
-        vs = SimpleTabbedViewState(
+    async def SimpleTabbedTextmenu(self, ctx):
+        vs = SimpleTabbedTextViewState(
             ["Message 1", "Message 2", "Message 3", "Message 4", "Message 5"], 0)
-        await SimpleTabbedMenu.menu().create(ctx, vs)
+        await SimpleTabbedTextMenu.menu().create(ctx, vs)
 
     @commands.command(aliases=['t3'])
     async def richtextmenu(self, ctx):
