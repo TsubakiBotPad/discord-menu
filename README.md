@@ -117,7 +117,7 @@ EmbedTranstions are code that determintes how ViewStates transform based on exte
 
 ## Intra Message State
 
-`discord-menu` does not require sessions, which allows the service it runs on to be stateless. If the bot turns off and on again, previous menus that were instantiated by the bot will still be able to function when the bot returns and responds to the user request. `discord-menu` stores menu state within Discord Embed images in locations that generally do not interfere with the user experience.
+`discord-menu` does not require sessions, which allows the service it runs on to be stateless. If the bot turns off and on again, previous menus that were instantiated by the bot will still be able to function when the bot returns and responds to the user request. `discord-menu` stores menu state within Discord Embed images in locations that generally do not interfere with the user experience. **Intra Message State is the data that is needed to reconstruct the menu from scratch.**
 
 Due to this, **all Menus that require state also need to contain a Discord Embed image**. This will be the case for most menus, short of simple displays that are never edited (a "menu" with no controls).
 
