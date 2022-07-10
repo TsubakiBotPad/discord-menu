@@ -7,13 +7,15 @@ from discordmenu.embed.transitions import EmbedTransitions
 from discordmenu.menu.closable_menu import ClosableMenuViewState
 from discordmenu.menu.listener.menu_listener import MenuListener
 from discordmenu.menu.listener.menu_map import MenuMap, MenuMapEntry
+from discordmenu.menu.scrollable_menu import ScrollableMenu, ScrollableMenuTransitions
+from discordmenu.menu.scrollable_menu import ScrollableViewState, ScrollableViews
 from discordmenu.menu.simple_tabbed_text_menu import SimpleTabbedTextMenu, SimpleTabbedTextMenuTransitions, \
     SimpleTabbedTextViewState
 from discordmenu.menu.simple_text_menu import SimpleTextMenu, SimpleTextViewState
 from discordmenu.menu.tabbed_menu import TabbedMenu, TabbedMenuTransitions
 from .examples.closable_menu import ClosableMenus, ClosableView1Props, ClosableView2Props
 from .examples.rich_text_menu import RichTextViewState, RichTextMenu, RichTextMenuTransitions
-from .examples.scrollable_menu import ScrollableMenu, ScrollableMenuTransitions, ScrollableMenuViewState
+from .examples.scrollable_menu import ScrollableView0, ScrollableView1, ScrollableView2
 from .examples.tabbed_menu import CustomTabbedViewState
 
 logger = logging.getLogger('test-bot')
@@ -69,8 +71,8 @@ class TestCog(commands.Cog):
 
     @commands.command(aliases=['t5'])
     async def scrollablemenu(self, ctx):
-        vs = ScrollableMenuViewState(ctx.message.author.id, ScrollableMenuViewState.MENU_TYPE, '', 0, -1,
-                                     len(ScrollableMenu.pane_num_to_view_constructor))
+        ScrollableViews.set('scrollable_menu_example', [ScrollableView0, ScrollableView1, ScrollableView2])
+        vs = ScrollableViewState(ctx.message.author.id, '', 'scrollable_menu_example', -1, 0, 3)
         await ScrollableMenu.menu().create(ctx, vs)
 
     @commands.command(aliases=['t6'])
