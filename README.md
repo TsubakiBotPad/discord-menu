@@ -5,10 +5,10 @@ discord-menu is a flexible python framework for creating interactive menus out o
 Its primary features are:
 
 1. **Declaritive UI Syntax** - React/SwiftUI like definition of Views.
-1. **Stateless compute** - Through the use of IntraMessageState, menus do not require maintaining a session. through use of an _intra-message state_, or "IMS," no data needs to be stored on the bot's server, allowing emojis never to expire (potentially dependent on which type of listener you are).
+1. **Stateless compute** - Menus do not require maintaining a session and no data needs to be stored on the bot's server.
 1. **Event driven** - No polling needed and interactions respond immediately to input.
-1. **Scalable state** - Message state is managed directly in the Embed, leveraging Discord's capabilities.
-1. **Flexibility** - Arbitrary code can be executed upon emoji clicks, allowing for complex features like pagination, dependent menus, or user authorizaton!
+1. **Scalable state** - Message state is managed directly in the Embed, leveraging Discord's storage scalability.
+1. **Flexibility** - Arbitrary code can be executed on emoji clicks, allowing for complex features like pagination, child menus, or user authorizaton!
 
 # Installation
 
@@ -20,7 +20,15 @@ Install via pip:
 
 Example code demonstrated with Red-DiscordBot. Raw discord.py should also work with slight modification of imports.
 
-## Simple Text Menu
+# Supported convenience menus
+
+1. **SimpleTextMenu** - Use this if you just want to display some text.
+1. **SimpleTabbedTextMenu** - This is useful if you a few different panes of text content that a user would select between.
+1. **ClosableMenu** - Write a custom view (more than just text) with a close button.
+1. **TabbedMenu** - Write custom views, and tab between them using dedicated emojis. Closable by default.
+1. **ScrollableMenu** - Write custom views, and scroll between them using left and right arrows. Closable by default.
+
+## SimpleTextMenu
 
 ```python
 import discord
@@ -50,7 +58,7 @@ class TestCog(commands.Cog):
 
 [Code](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py#L38)
 
-## Simple Tabbed Text Menu
+## SimpleTabbedTextMenu
 
 ```python
 import discord
@@ -83,63 +91,17 @@ class TestCog(commands.Cog):
 
 [Code](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py#L43)
 
-## Scrollable Menu
+## Sample code for other menus
 
-TODO
+For example code for `ClosableMenu`, `TabbedMenu`, or `ScrollableMenu`, refer to the [test file](https://github.com/TsubakiBotPad/discord-menu/blob/main/test/testcog/main.py).
 
-## Advanced Usage
+## Advanced usage
 
-If you're looking for ideas on what you can do with this framework, or for info on how to create complex menus, refer to [documentation](https://github.com/TsubakiBotPad/discord-menu/blob/main/docs/advanced-usage.md) on advanced usage.
+If you're looking for ideas on what you can do with this framework, or for info on how to create complex menus, refer to [documentation on advanced usage](https://github.com/TsubakiBotPad/discord-menu/blob/main/docs/advanced-usage.md).
 
-# Supported Convenience Menus
+# Running tests + sample code
 
-1. **SimpleTextMenu** - Use this if you just want to display some text.
-1. **SimpleTabbedTextMenu** - This is useful if you a few different panes of text content that a user would select between.
-1. **ClosableMenus** - If you want a simple view with just a basic close button.
-
-# Key Concepts
-
-## Components of a Menu
-
-<img width="515" alt="image" src="https://user-images.githubusercontent.com/880610/175546502-eb294f6e-8073-4b6f-9f43-1d9d0fbb4590.png">
-
-Menus are easiest understood through the lens of the underlying ViewState (a.k.a ViewModel in MVVM architecture). Views are a constructed from combination of a declarative template (i.e HTML DOM) and dynamic data from the ViewState.
-
-EmbedTranstions are code that determintes how ViewStates transform based on external input (e.g emoji clicked). As the ViewState change, in turn so does the visualization (View) associated with it.
-
-1. **EmbedViewState** - This is the set of data that can be modified by external inputs (e.g user clicks). The state can be used to display dynamic information on the View (e.g page number).
-
-1. **EmbedView** - This is the code for what is displayed on the user's screen in Discord. It takes input from the ViewState and transforms it into UI elements.
-
-1. **EmbedTransitions** - Transitions are code that is run in order to convert the current ViewState to the next ViewState. Often times, this means recomputing a new ViewState entirely to show different data. In more complex cases, data can be carried over from the previous state in order to influence what to display next (e.g query params, page history)
-
-1. **EmbedMenu** - Finally, the Menu is conceptually a container for all of the subcomponents described above. It is what a user sees and interacts with on Discord.
-
-## Intra Message State
-
-`discord-menu` does not require sessions, which allows the service it runs on to be stateless. If the bot turns off and on again, previous menus that were instantiated by the bot will still be able to function when the bot returns and responds to the user request. `discord-menu` stores menu state within Discord Embed images in locations that generally do not interfere with the user experience. **Intra Message State is the data that is needed to reconstruct the menu from scratch.**
-
-Due to this, **all Menus that require state also need to contain a Discord Embed image**. This will be the case for most menus, short of simple displays that are never edited (a "menu" with no controls).
-
-These images can either be in the Embed `author`, `image`, `thumbnail`, or `footer`. By default, we recommend using the Embed footer as the UI element is most pleasant and unintrusive.
-
-In practice, Intra Message State is saved by subclassing `ViewState` and attaching it on `Menu.create(...)` or within an `EmbedTransition` function as part of the main API flow.
-
-## Menu Lifecycle
-
-<img width="771" alt="image" src="https://user-images.githubusercontent.com/880610/175549719-85ae276e-a04d-4aa4-be85-354de12383e7.png">
-
-Menus in this library are called upon in two separate contexts - on menu creation and on discord reaction. These two contexts do not share any process state, which allows the system to be independent and scalable.
-
-In the creation case, a user defined `EmbedMenu` and seed `ViewState` is created from user input, and is translated by `discord-menu` into an `EmbedWrapper` that is sent to Discord. Discord servers receive the request and displays the menu message to the end user in the Discord app.
-
-Sometime later, a user may click a reaction on the menu, which triggers the `on_reaction_add` code path in the bot. `discord-menu` extracts the `ViewState` from the event, and executes user defined code in `EmbedTransition` which produces the next `EmbedWrapper` to be sent to discord.
-
-In both cases above, the `EmbedWrapper` are independently derived from the underlying `EmbedViewState`. As long as the user defined `EmbedMenu` and its corresponding code is independently loadable in the two code paths, the system's main limitation is the data storage size of an `EmbedViewState`, which is unlikely to be an issue.
-
-# Running Tests + Sample Code
-
-## Prerequisite: Create a Discord Bot
+## Prerequisite: Create a Discord bot
 
 If you don't have one already, follow the instructions to create a bot in Red's official documentation:
 
