@@ -152,9 +152,9 @@ Nesting is only 1 deep at the moment, as more complicated filters were not conci
 
 Some examples of things you could build using discord-menu:
 
-1. Simple Poll/Votes
-1. Access Control on Menus
-1. Child Menus (controls on one message affect another message)
-1. Image Slideshow
-1. User Profile Viewer
-1. Moderation Tools
+1. Simple poll / voting
+1. Access control on menus
+1. Child menus (controls on one message affect another message)
+1. Image slideshow
+1. User profile viewer
+1. Moderation tools
