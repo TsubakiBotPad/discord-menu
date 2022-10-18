@@ -1,3 +1,11 @@
+![python_version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue)
+
+# Installation
+
+Install latest via pip:
+
+`pip install discord-menu`
+
 # What is discord-menu?
 
 discord-menu is a flexible python framework for creating interactive menus out of Discord Embeds. Users can click specified emojis and the embed responds according to preset instructions.
@@ -9,12 +17,6 @@ Its primary features are:
 1. **Event driven** - No polling needed and interactions respond immediately to input.
 1. **Scalable state** - Message state is managed directly in the Embed, leveraging Discord's storage scalability.
 1. **Flexibility** - Arbitrary code can be executed on emoji clicks, allowing for complex features like pagination, child menus, or user authorizaton!
-
-# Installation
-
-Install via pip:
-
-`pip install discord-menu`
 
 # How to use
 
