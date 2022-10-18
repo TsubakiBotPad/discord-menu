@@ -101,6 +101,8 @@ For example code for `ClosableMenu`, `TabbedMenu`, or `ScrollableMenu`, refer to
 
 If you're looking for ideas on what you can do with this framework, or for info on how to create complex menus, refer to [documentation on advanced usage](https://github.com/TsubakiBotPad/discord-menu/blob/main/docs/advanced-usage.md).
 
+This menu system is originally built for looking up data from the popular puzzle gacha game [Puzzle & Dragons](https://en.wikipedia.org/wiki/Puzzle_%26_Dragons) - feel free to join the [discord server](https://discord.gg/QCRxNtC) for a demo on the complex system that powers data accessbility within the community.
+
 # Running tests + sample code
 
 ## Prerequisite: Create a Discord bot
